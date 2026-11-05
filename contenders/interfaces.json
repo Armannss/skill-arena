@@ -1,0 +1,10 @@
+{
+  "id": "interfaces",
+  "name": "Interfaces",
+  "author": "jakubkrehel",
+  "repo": "https://github.com/jakubkrehel/skills",
+  "commit": "60bf140e43c98b248e6594487384ec967e89d98a",
+  "license": "MIT",
+  "skills": ["skills/*"],
+  "notes": "All 14 skills from the collection are installed together, as `npx skills add` does."
+}

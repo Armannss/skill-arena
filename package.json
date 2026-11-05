@@ -1,0 +1,43 @@
+{
+  "name": "skill-arena",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Same prompt, same agent, different design skill. A blind, reproducible comparison of the design skills coding agents use.",
+  "author": {
+    "name": "Arman Naseri Far",
+    "url": "https://armannss.github.io/portfolio/"
+  },
+  "homepage": "https://armannss.github.io/skill-arena/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Armannss/skill-arena.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Armannss/skill-arena/issues"
+  },
+  "keywords": [
+    "ai",
+    "agent-skills",
+    "claude-code",
+    "design",
+    "benchmark",
+    "ai-slop"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch.mjs",
+    "pin": "node scripts/pin.mjs",
+    "login": "node scripts/login.mjs",
+    "run": "node scripts/run.mjs",
+    "shoot": "node scripts/shoot.mjs",
+    "gallery": "node scripts/gallery.mjs",
+    "arena": "node scripts/fetch.mjs && node scripts/run.mjs && node scripts/shoot.mjs && node scripts/gallery.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.49.1"
+  }
+}

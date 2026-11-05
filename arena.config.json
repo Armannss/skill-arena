@@ -1,0 +1,15 @@
+{
+  "agent": {
+    "mode": "safe",
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "timeoutMinutes": 30,
+    "disallowedTools": ["WebSearch", "WebFetch"]
+  },
+  "seeds": 1,
+  "concurrency": 2,
+  "viewports": {
+    "desktop": { "width": 1440, "height": 900 },
+    "mobile": { "width": 390, "height": 844 }
+  }
+}

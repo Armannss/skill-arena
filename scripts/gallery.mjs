@@ -1,0 +1,496 @@
+// Builds a static gallery for one run into site/. The folder opens straight
+// from disk and deploys to GitHub Pages as is.
+//
+//   node scripts/gallery.mjs [--run name]
+import { readdir, rm, mkdir, cp, writeFile, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { parseArgs, resolveRunId, readJson, RUNS_DIR, SITE_DIR } from './lib.mjs';
+
+const args = parseArgs();
+const runId = await resolveRunId(args.run);
+const runDir = path.join(RUNS_DIR, runId);
+const run = await readJson(path.join(runDir, 'run.json'));
+
+await rm(SITE_DIR, { recursive: true, force: true });
+await mkdir(SITE_DIR, { recursive: true });
+
+const entries = [];
+for (const p of run.prompts) {
+  for (const c of run.contenders) {
+    const base = path.join(runDir, p.id, c.id);
+    if (!existsSync(base)) continue;
+    for (const seedDir of (await readdir(base)).sort()) {
+      const dir = path.join(base, seedDir);
+      if (!(await stat(dir)).isDirectory() || !existsSync(path.join(dir, 'meta.json'))) continue;
+      const meta = await readJson(path.join(dir, 'meta.json'));
+      const rel = `r/${p.id}/${c.id}/${seedDir}`;
+      const out = path.join(SITE_DIR, rel);
+      await mkdir(out, { recursive: true });
+      if (existsSync(path.join(dir, 'work'))) await cp(path.join(dir, 'work'), path.join(out, 'page'), { recursive: true });
+      if (existsSync(path.join(dir, 'shots'))) await cp(path.join(dir, 'shots'), path.join(out, 'shots'), { recursive: true });
+      if (existsSync(path.join(dir, 'transcript.jsonl'))) await cp(path.join(dir, 'transcript.jsonl'), path.join(out, 'transcript.jsonl'));
+      entries.push({
+        prompt: p.id,
+        contender: c.id,
+        seed: meta.seed ?? Number(seedDir.replace(/\D/g, '')),
+        path: rel,
+        ok: meta.ok,
+        hasShots: existsSync(path.join(dir, 'shots', 'desktop-fold.jpg')),
+        durationMs: meta.durationMs,
+        costUsd: meta.costUsd,
+        turns: meta.turns,
+        skillTriggered: meta.skillTriggered,
+        skillCalls: meta.skillCalls ?? [],
+        pageErrors: meta.pageErrors?.length ?? 0,
+      });
+    }
+  }
+}
+
+
+function page(data) {
+  const json = JSON.stringify(data).replace(/</g, '\\u003c');
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill Arena</title>
+<meta name="description" content="Same prompt, same agent, different design skill. A blind, reproducible comparison of the design skills coding agents use.">
+<meta name="author" content="Arman Naseri Far">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>${CSS}</style>
+</head>
+<body>
+<header class="masthead wrap">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="11" height="26" rx="1.5"/><rect x="18" y="3" width="11" height="26" rx="1.5"/></svg>
+    <span>Skill Arena</span>
+  </div>
+  <h1>Same prompt. Same agent.<br><em>Different design skill.</em></h1>
+  <p class="lede">Every page below was built by the same coding agent from the same brief. The only difference is which design skill it had installed, if any. Toggle blind mode, pick your favourites, then reveal who made them.</p>
+  <dl class="runmeta" id="runmeta"></dl>
+</header>
+
+<nav class="bar" aria-label="Gallery controls">
+  <div class="wrap bar-inner">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="switches">
+      <div class="seg" role="group" aria-label="Viewport">
+        <button type="button" data-view="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-view="mobile" aria-pressed="false">Phone</button>
+      </div>
+      <button type="button" class="toggle" id="blind" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Blind mode</button>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section class="brief" id="brief" aria-live="polite"></section>
+  <section class="grid" id="grid"></section>
+  <section class="board">
+    <h2>Scoreboard</h2>
+    <p class="note">Cost, time and whether the agent actually loaded the skill, across every prompt in this run. A skill that is installed but never triggered has done nothing.</p>
+    <div class="tablewrap"><table id="board"></table></div>
+  </section>
+  <section class="method">
+    <h2>How this was made</h2>
+    <ol>
+      <li>Each contender's skills are cloned at a pinned commit and loaded as a plugin, so a run sees exactly one contender.</li>
+      <li>The agent runs headless in an empty folder outside any project. No user settings, plugins, memory or CLAUDE.md reach it.</li>
+      <li>The prompt never names a skill. Each skill has to trigger on its own, the way it would for a real user.</li>
+      <li>Pages are screenshotted in Chrome at 1440 and 390 pixels wide, after one scroll through the page.</li>
+    </ol>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p class="credit">Skill Arena by <a href="https://armannss.github.io/portfolio/" rel="noopener">Arman Naseri Far</a></p>
+  <nav class="footlinks" aria-label="Links">
+    <a href="https://github.com/Armannss/skill-arena" rel="noopener">Source on GitHub</a>
+    <a href="https://www.linkedin.com/in/arman-naseri-far-5773b3341/" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/Armannss/skill-arena/blob/main/README.md#add-a-skill" rel="noopener">Add your skill</a>
+  </nav>
+  <span id="footmeta"></span>
+</footer>
+
+<div class="viewer" id="viewer" hidden>
+  <div class="viewer-scrim" data-close></div>
+  <div class="viewer-panel" role="dialog" aria-modal="true" aria-labelledby="v-title">
+    <div class="viewer-shot" id="v-shot"></div>
+    <aside class="viewer-side">
+      <div class="viewer-nav">
+        <button type="button" class="icon" id="v-prev" aria-label="Previous result">${icon('left')}</button>
+        <button type="button" class="icon" id="v-next" aria-label="Next result">${icon('right')}</button>
+        <button type="button" class="icon" data-close aria-label="Close">${icon('close')}</button>
+      </div>
+      <p class="eyebrow" id="v-prompt"></p>
+      <h2 id="v-title"></h2>
+      <p class="by" id="v-by"></p>
+      <dl class="stats" id="v-stats"></dl>
+      <div class="links" id="v-links"></div>
+    </aside>
+  </div>
+</div>
+
+<script>const DATA = ${json};</script>
+<script>${JS}</script>
+</body>
+</html>`;
+}
+
+function icon(name) {
+  const paths = {
+    left: '<path d="M10 3 5 8l5 5"/>',
+    right: '<path d="m6 3 5 5-5 5"/>',
+    close: '<path d="m4 4 8 8M12 4l-8 8"/>',
+  };
+  return `<svg viewBox="0 0 16 16" aria-hidden="true">${paths[name]}</svg>`;
+}
+
+const CSS = `
+:root {
+  --bg: #f3f2ee; --surface: #fbfaf7; --ink: #17160f; --ink-2: #56544c; --ink-3: #8a877d;
+  --line: #dcd9d0; --line-2: #c9c5ba; --accent: #e5461a; --ok: #2f7a4b; --warn: #a3580b;
+  --shadow: 0 1px 0 rgba(23,22,15,.04), 0 12px 32px -18px rgba(23,22,15,.28);
+  --serif: "Instrument Serif", Georgia, serif; --sans: "Geist", system-ui, sans-serif; --mono: "Geist Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121210; --surface: #1a1a17; --ink: #edebe4; --ink-2: #a9a69c; --ink-3: #75736b;
+    --line: #2b2a26; --line-2: #3a3934; --accent: #ff6a3d; --ok: #63b884; --warn: #e0a050;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 16px 40px -20px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+.wrap { width: min(1360px, 100% - 32px); margin-inline: auto; }
+
+.masthead { padding: 56px 0 36px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 500 13px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.mark { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 2.2; }
+.mark rect:last-child { fill: var(--accent); stroke: var(--accent); }
+h1 { font: 400 clamp(40px, 7vw, 88px)/.98 var(--serif); letter-spacing: -.015em; margin: 40px 0 24px; }
+h1 em { color: var(--ink-2); }
+.lede { max-width: 58ch; color: var(--ink-2); font-size: 17px; margin: 0; }
+.runmeta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 32px 0 0; padding-top: 18px; border-top: 1px solid var(--line); font: 12px/1.4 var(--mono); }
+.runmeta div { display: flex; gap: 8px; }
+.runmeta dt { color: var(--ink-3); }
+.runmeta dd { margin: 0; }
+
+.bar { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-block: 1px solid var(--line); }
+.bar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; margin-inline: -4px; padding-inline: 4px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { border: 0; background: none; padding: 8px 12px; border-radius: 6px; color: var(--ink-2); white-space: nowrap; cursor: pointer; }
+.tab:hover { color: var(--ink); background: var(--line); }
+.tab[aria-selected="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); border-radius: 0; background: none; }
+.switches { display: flex; gap: 10px; flex-shrink: 0; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; padding: 2px; }
+.seg button { border: 0; background: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; color: var(--ink-2); font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.toggle { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); background: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+.toggle .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
+.toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.toggle[aria-pressed="true"] .dot { background: var(--accent); border-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.brief { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 32px; align-items: end; padding: 40px 0 28px; }
+.brief .eyebrow { grid-column: 1 / -1; }
+.brief h2 { font: 400 clamp(30px, 4vw, 44px)/1.05 var(--serif); margin: 0; }
+.brief blockquote { grid-column: 1; margin: 12px 0 0; max-width: 72ch; color: var(--ink-2); font-size: 16px; }
+.brief .count { grid-row: 2; grid-column: 2; font: 12px var(--mono); color: var(--ink-3); }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr)); gap: 28px 24px; padding-bottom: 72px; }
+.grid.mobile { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+.card { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.frame { position: relative; display: block; width: 100%; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); cursor: zoom-in; box-shadow: var(--shadow); aspect-ratio: 1440 / 900; transition: transform .2s cubic-bezier(.2,.7,.2,1), border-color .2s; }
+.grid.mobile .frame { aspect-ratio: 390 / 844; border-radius: 18px; }
+.frame:hover { transform: translateY(-2px); border-color: var(--line-2); }
+.frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.frame .empty { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; font: 12px var(--mono); color: var(--ink-3); }
+.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 12px; }
+.name { font-weight: 600; font-size: 15px; }
+.name small { font-weight: 400; color: var(--ink-3); margin-left: 6px; font-size: 13px; }
+.badge { font: 500 11px/1 var(--mono); padding: 4px 7px; border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+.badge.ok { color: var(--ok); } .badge.warn { color: var(--warn); } .badge.muted { color: var(--ink-3); }
+.meta { display: flex; gap: 14px; font: 12px var(--mono); color: var(--ink-2); flex-wrap: wrap; }
+.seeds { display: inline-flex; gap: 2px; }
+.seeds button { border: 1px solid var(--line-2); background: none; border-radius: 4px; padding: 0 6px; font: 11px/18px var(--mono); cursor: pointer; color: var(--ink-2); }
+.seeds button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.reveal { border: 0; background: none; padding: 0; font: 500 12px var(--mono); color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+.board, .method { border-top: 1px solid var(--line); padding: 40px 0 56px; }
+.board h2, .method h2 { font: 400 32px/1.1 var(--serif); margin: 0 0 8px; }
+.note { color: var(--ink-2); max-width: 64ch; margin: 0 0 24px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+td.num { font-family: var(--mono); font-size: 13px; text-align: right; }
+th.num { text-align: right; }
+td a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
+.method ol { margin: 16px 0 0; padding-left: 20px; max-width: 72ch; color: var(--ink-2); display: grid; gap: 10px; }
+.foot { display: grid; grid-template-columns: 1fr auto; gap: 12px 24px; align-items: baseline; padding: 28px 0 48px; border-top: 1px solid var(--line); font: 12px var(--mono); color: var(--ink-3); }
+.credit { margin: 0; font: 400 22px/1.2 var(--serif); color: var(--ink); }
+.credit a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
+.credit a:hover { border-color: var(--ink); }
+.footlinks { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.footlinks a { color: var(--ink-2); text-decoration: none; }
+.footlinks a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+#footmeta { grid-column: 1 / -1; }
+@media (max-width: 860px) { .foot { grid-template-columns: 1fr; } }
+
+.viewer { position: fixed; inset: 0; z-index: 20; }
+.viewer-scrim { position: absolute; inset: 0; background: rgba(10,10,8,.62); }
+.viewer-panel { position: absolute; inset: 24px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; background: var(--bg); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px -20px rgba(0,0,0,.5); }
+.viewer-shot { overflow: auto; background: var(--surface); border-right: 1px solid var(--line); display: flex; justify-content: center; }
+.viewer-shot img { display: block; width: 100%; height: auto; align-self: flex-start; }
+.viewer-shot.mobile img { width: min(100%, 430px); }
+.viewer-side { padding: 20px 24px; overflow-y: auto; }
+.viewer-nav { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 28px; }
+.icon { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line-2); border-radius: 8px; background: none; cursor: pointer; }
+.icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.viewer-side h2 { font: 400 34px/1.05 var(--serif); margin: 10px 0 4px; }
+.by { color: var(--ink-2); margin: 0 0 24px; font-size: 14px; }
+.stats { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; margin: 0 0 28px; font-size: 14px; }
+.stats dt { color: var(--ink-3); font: 12px/1.7 var(--mono); }
+.stats dd { margin: 0; font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.links { display: grid; gap: 8px; }
+.links a { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border: 1px solid var(--line-2); border-radius: 8px; text-decoration: none; font-size: 14px; }
+.links a:first-child { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.links a:hover { border-color: var(--ink); }
+
+@media (max-width: 860px) {
+  .masthead { padding-top: 32px; }
+  h1 { margin-top: 28px; }
+  .bar-inner { flex-wrap: wrap; padding: 8px 0; }
+  .tabs { width: 100%; }
+  .brief { grid-template-columns: 1fr; }
+  .brief .count { grid-row: auto; grid-column: 1; }
+  .grid.mobile { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+  .grid.mobile .meta { gap: 4px 10px; }
+  .viewer-panel { inset: 0; border-radius: 0; grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+  .viewer-shot { border-right: 0; border-bottom: 1px solid var(--line); }
+  .viewer-side { max-height: 46vh; padding: 16px; }
+  .viewer-nav { margin-bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .frame { transition: none; } .frame:hover { transform: none; } }
+`;
+
+const JS = `
+(() => {
+  const { run, entries } = DATA;
+  const params = new URLSearchParams(location.search);
+  const state = {
+    prompt: params.get('prompt') && run.prompts.some((p) => p.id === params.get('prompt')) ? params.get('prompt') : run.prompts[0]?.id,
+    view: params.get('view') === 'mobile' ? 'mobile' : 'desktop',
+    blind: params.get('blind') === '1',
+    revealed: new Set(),
+    seed: {},
+    open: null,
+  };
+  const byId = Object.fromEntries(run.contenders.map((c) => [c.id, c]));
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const money = (v) => (v == null ? '—' : '$' + v.toFixed(2));
+  const mins = (ms) => { if (!ms) return '—'; const s = Math.round(ms / 1000); return Math.floor(s / 60) + 'm ' + String(s % 60).padStart(2, '0') + 's'; };
+  const median = (xs) => { const v = xs.filter((x) => x != null).sort((a, b) => a - b); if (!v.length) return null; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
+
+  // Runs are stored per contender; blind mode shuffles with a seed so the
+  // order is stable for one prompt but tells you nothing about who is who.
+  function order(promptId) {
+    const ids = run.contenders.map((c) => c.id).filter((id) => entries.some((e) => e.prompt === promptId && e.contender === id));
+    if (!state.blind) return ids;
+    let h = 2166136261;
+    for (const ch of promptId + run.id) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+    const rand = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296;
+    const out = ids.slice();
+    for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
+  }
+  const hidden = (id) => state.blind && !state.revealed.has(state.prompt + '/' + id);
+  const letter = (i) => 'Entry ' + String.fromCharCode(65 + i);
+  const pick = (promptId, id) => {
+    const list = entries.filter((e) => e.prompt === promptId && e.contender === id).sort((a, b) => a.seed - b.seed);
+    return list.find((e) => e.seed === state.seed[promptId + '/' + id]) || list[0];
+  };
+  const seedsOf = (promptId, id) => entries.filter((e) => e.prompt === promptId && e.contender === id).map((e) => e.seed).sort((a, b) => a - b);
+
+  function badge(e) {
+    if (!byId[e.contender].repo) return '<span class="badge muted">no skill</span>';
+    return e.skillTriggered ? '<span class="badge ok">skill used</span>' : '<span class="badge warn">skill not triggered</span>';
+  }
+
+  function syncUrl() {
+    const q = new URLSearchParams();
+    q.set('prompt', state.prompt);
+    if (state.view === 'mobile') q.set('view', 'mobile');
+    if (state.blind) q.set('blind', '1');
+    history.replaceState(null, '', '?' + q);
+  }
+
+  function renderMeta() {
+    const a = run.agent || {};
+    const date = new Date(run.startedAt);
+    const items = [
+      ['agent', 'Claude Code ' + (a.version || '')],
+      ['model', a.model],
+      ['effort', a.effort],
+      ['mode', a.mode],
+      ['seeds', run.seeds],
+      ['results', entries.length],
+      ['date', date.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })],
+    ].filter(([, v]) => v != null && v !== '');
+    $('#runmeta').innerHTML = items.map(([k, v]) => '<div><dt>' + k + '</dt><dd>' + esc(v) + '</dd></div>').join('');
+    $('#footmeta').textContent = 'Run ' + run.id + ' · contenders pinned to the commits listed in the scoreboard';
+  }
+
+  function renderTabs() {
+    $('#tabs').innerHTML = run.prompts.map((p) =>
+      '<button type="button" class="tab" role="tab" data-prompt="' + esc(p.id) + '" aria-selected="' + (p.id === state.prompt) + '">' + esc(p.title) + '</button>').join('');
+  }
+
+  function renderBrief() {
+    const p = run.prompts.find((x) => x.id === state.prompt);
+    const n = order(p.id).length;
+    $('#brief').innerHTML = '<p class="eyebrow">The brief' + (p.genre ? ' · ' + esc(p.genre) : '') + '</p><h2>' + esc(p.title) + '</h2><blockquote>' + esc(p.brief) + '</blockquote><span class="count">' + n + ' contenders</span>';
+  }
+
+  function renderGrid() {
+    const grid = $('#grid');
+    grid.className = 'grid ' + state.view;
+    grid.innerHTML = order(state.prompt).map((id, i) => {
+      const e = pick(state.prompt, id);
+      const c = byId[id];
+      const hide = hidden(id);
+      const seeds = seedsOf(state.prompt, id);
+      const img = e.hasShots
+        ? '<img loading="lazy" src="' + e.path + '/shots/' + state.view + '-fold.jpg" alt="' + (hide ? letter(i) : esc(c.name)) + ', ' + state.view + ' view">'
+        : '<span class="empty">' + (e.ok ? 'No screenshot yet' : 'The run did not produce a page') + '</span>';
+      const title = hide ? letter(i) : esc(c.name) + (c.author ? '<small>' + esc(c.author) + '</small>' : '');
+      return '<article class="card">' +
+        '<button type="button" class="frame" data-open="' + esc(id) + '" aria-label="Open ' + (hide ? letter(i) : esc(c.name)) + '">' + img + '</button>' +
+        '<div class="card-head"><span class="name">' + title + '</span>' + (hide ? '<button type="button" class="reveal" data-reveal="' + esc(id) + '">Reveal</button>' : badge(e)) + '</div>' +
+        '<div class="meta"><span>' + mins(e.durationMs) + '</span><span>' + money(e.costUsd) + '</span><span>' + (e.turns ?? '—') + ' turns</span>' +
+        (seeds.length > 1 ? '<span class="seeds" role="group" aria-label="Seed">' + seeds.map((s) => '<button type="button" data-seed="' + esc(id) + ':' + s + '" aria-pressed="' + (s === e.seed) + '">' + s + '</button>').join('') + '</span>' : '') +
+        '</div></article>';
+    }).join('');
+  }
+
+  function renderBoard() {
+    const rows = run.contenders.map((c) => {
+      const mine = entries.filter((e) => e.contender === c.id);
+      const used = mine.filter((e) => e.skillTriggered).length;
+      const cost = mine.reduce((s, e) => s + (e.costUsd || 0), 0) / (mine.length || 1);
+      return '<tr><td>' + (c.repo ? '<a href="' + esc(c.repo) + '" rel="noopener">' + esc(c.name) + '</a>' : esc(c.name)) + '</td>' +
+        '<td class="num">' + (c.commit ? '<a href="' + esc(c.repo) + '/tree/' + esc(c.commit) + '" rel="noopener">' + esc(c.commit.slice(0, 7)) + '</a>' : '—') + '</td>' +
+        '<td class="num">' + (c.repo ? used + ' / ' + mine.length : '—') + '</td>' +
+        '<td class="num">' + mins(median(mine.map((e) => e.durationMs))) + '</td>' +
+        '<td class="num">' + money(mine.length ? cost : null) + '</td>' +
+        '<td class="num">' + mine.filter((e) => e.ok).length + ' / ' + mine.length + '</td></tr>';
+    }).join('');
+    $('#board').innerHTML = '<thead><tr><th>Contender</th><th class="num">Commit</th><th class="num">Skill used</th><th class="num">Median time</th><th class="num">Avg cost</th><th class="num">Pages built</th></tr></thead><tbody>' + rows + '</tbody>';
+  }
+
+  function openViewer(id) {
+    state.open = id;
+    const ids = order(state.prompt);
+    const i = ids.indexOf(id);
+    const e = pick(state.prompt, id);
+    const c = byId[id];
+    const hide = hidden(id);
+    const p = run.prompts.find((x) => x.id === state.prompt);
+    const shot = $('#v-shot');
+    shot.className = 'viewer-shot ' + state.view;
+    shot.innerHTML = e.hasShots ? '<img src="' + e.path + '/shots/' + state.view + '-full.jpg" alt="Full page, ' + state.view + ' view">' : '<p class="empty">No screenshot</p>';
+    shot.scrollTop = 0;
+    $('#v-prompt').textContent = p.title + ' · ' + (i + 1) + ' of ' + ids.length;
+    $('#v-title').textContent = hide ? letter(i) : c.name;
+    $('#v-by').textContent = hide ? 'Hidden while blind mode is on.' : (c.author ? 'by ' + c.author : c.description || '');
+    const stats = [
+      ['time', mins(e.durationMs)],
+      ['cost', money(e.costUsd)],
+      ['turns', e.turns ?? '—'],
+      ['seed', e.seed],
+    ];
+    if (!hide) {
+      stats.push(['skill', c.repo ? (e.skillTriggered ? 'used' : 'not triggered') : 'none installed']);
+      if (e.skillCalls.length) stats.push(['calls', e.skillCalls.join(', ')]);
+      if (c.commit) stats.push(['commit', c.commit.slice(0, 12)]);
+      if (c.notes) stats.push(['note', c.notes]);
+    }
+    if (e.pageErrors) stats.push(['js errors', e.pageErrors]);
+    $('#v-stats').innerHTML = stats.map(([k, v]) => '<dt>' + k + '</dt><dd>' + esc(v) + '</dd>').join('');
+    const arrow = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>';
+    $('#v-links').innerHTML =
+      (e.ok ? '<a href="' + e.path + '/page/index.html" target="_blank" rel="noopener">Open the live page ' + arrow + '</a>' : '') +
+      '<a href="' + e.path + '/transcript.jsonl" target="_blank" rel="noopener">Agent transcript ' + arrow + '</a>' +
+      (!hide && c.repo ? '<a href="' + esc(c.repo) + '" target="_blank" rel="noopener">Skill repository ' + arrow + '</a>' : '');
+    const v = $('#viewer');
+    if (v.hidden) { v.hidden = false; document.body.style.overflow = 'hidden'; $('#v-next').focus(); }
+  }
+  function closeViewer() {
+    const id = state.open;
+    $('#viewer').hidden = true;
+    document.body.style.overflow = '';
+    state.open = null;
+    document.querySelector('[data-open="' + CSS.escape(id) + '"]')?.focus();
+  }
+  function step(d) {
+    const ids = order(state.prompt);
+    openViewer(ids[(ids.indexOf(state.open) + d + ids.length) % ids.length]);
+  }
+
+  function render() {
+    renderTabs(); renderBrief(); renderGrid();
+    document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+    $('#blind').setAttribute('aria-pressed', String(state.blind));
+    syncUrl();
+  }
+
+  document.addEventListener('click', (ev) => {
+    const t = ev.target.closest('button, [data-close]');
+    if (!t) return;
+    if (t.dataset.prompt) { state.prompt = t.dataset.prompt; render(); }
+    else if (t.dataset.view) { state.view = t.dataset.view; render(); }
+    else if (t.id === 'blind') { state.blind = !state.blind; state.revealed.clear(); render(); }
+    else if (t.dataset.reveal) { state.revealed.add(state.prompt + '/' + t.dataset.reveal); renderGrid(); }
+    else if (t.dataset.seed) { const [id, s] = t.dataset.seed.split(':'); state.seed[state.prompt + '/' + id] = Number(s); renderGrid(); }
+    else if (t.dataset.open) openViewer(t.dataset.open);
+    else if (t.id === 'v-prev') step(-1);
+    else if (t.id === 'v-next') step(1);
+    else if ('close' in t.dataset) closeViewer();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if ($('#viewer').hidden) return;
+    if (ev.key === 'Escape') closeViewer();
+    else if (ev.key === 'ArrowRight') step(1);
+    else if (ev.key === 'ArrowLeft') step(-1);
+    else if (ev.key === 'Tab') {
+      const f = [...document.querySelectorAll('#viewer button, #viewer a')].filter((x) => x.offsetParent);
+      if (!f.length) return;
+      if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f.at(-1).focus(); }
+      else if (!ev.shiftKey && document.activeElement === f.at(-1)) { ev.preventDefault(); f[0].focus(); }
+    }
+  });
+
+  renderMeta(); renderBoard(); render();
+})();
+`;
+
+// Written last: page() needs CSS and JS, which are defined above.
+const data = { run, entries };
+await writeFile(path.join(SITE_DIR, 'index.html'), page(data));
+await writeFile(path.join(SITE_DIR, '.nojekyll'), '');
+console.log(`Gallery for run ${runId}: ${entries.length} results -> ${path.relative(process.cwd(), path.join(SITE_DIR, 'index.html'))}`);

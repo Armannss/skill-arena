@@ -1,0 +1,10 @@
+{
+  "id": "impeccable",
+  "name": "Impeccable",
+  "author": "pbakaus",
+  "repo": "https://github.com/pbakaus/impeccable",
+  "commit": "c8891a9ae865d6ee311836ae5199bfce0fe115b1",
+  "license": "Apache-2.0",
+  "skills": [".claude/skills/impeccable"],
+  "notes": "Skill files only. The optional design hook from `npx impeccable install` is not installed."
+}

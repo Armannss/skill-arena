@@ -1,0 +1,6 @@
+{
+  "id": "baseline",
+  "name": "No skill",
+  "description": "The agent on its own. Every other contender is compared against this.",
+  "skills": []
+}
