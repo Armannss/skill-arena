@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerly — Invoicing that chases late payments for you</title>
+<meta name="description" content="Ledgerly sends your invoices, chases late payments automatically and shows what you're owed at a glance. Free for up to 3 clients.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23191915'/%3E%3Cpath d='M9 11h14M9 16h14M9 21h8' stroke='%23F4F0E6' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='22.5' cy='21' r='2.6' fill='%233FA772'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F0E6;
+    --paper-2: #ECE6D7;
+    --card: #FFFDF8;
+    --ink: #191915;
+    --ink-2: #45433C;
+    --muted: #757166;
+    --line: #DDD5C3;
+    --line-soft: #E8E2D3;
+    --green: #1E6B47;
+    --green-2: #3FA772;
+    --green-soft: #DDEBDF;
+    --amber: #A9490C;
+    --amber-soft: #F7E3CF;
+    --radius: 14px;
+    --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --shadow: 0 1px 0 rgba(25,25,21,.04), 0 12px 32px -12px rgba(25,25,21,.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; }
+  h1, h2, h3 { margin: 0; font-weight: 400; }
+  p { margin: 0; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 6px; }
+
+  .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Buttons & form ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 48px; padding: 0 22px;
+    border-radius: 999px; border: 1px solid var(--ink);
+    font: 500 16px/1 var(--sans);
+    text-decoration: none; cursor: pointer; white-space: nowrap;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { background: var(--green); border-color: var(--green); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-ghost { background: transparent; color: var(--ink); }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+  .btn-sm { height: 40px; padding: 0 18px; font-size: 15px; }
+  .btn .arrow { transition: transform .18s ease; }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  .signup { width: 100%; max-width: 480px; }
+  .signup-row {
+    display: flex; gap: 6px; padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    transition: border-color .18s ease;
+  }
+  .signup-row:focus-within { border-color: var(--ink); }
+  .signup input {
+    flex: 1; min-width: 0;
+    border: 0; background: transparent;
+    padding: 0 16px;
+    font: 400 16px var(--sans); color: var(--ink);
+  }
+  .signup input::placeholder { color: #9A9588; }
+  .signup input:focus { outline: none; }
+  .signup .btn { height: 46px; }
+  .signup-note {
+    margin-top: 14px;
+    display: flex; flex-wrap: wrap; gap: 6px 18px;
+    font-size: 14px; color: var(--muted);
+  }
+  .signup-note span { display: inline-flex; align-items: center; gap: 6px; }
+  .signup-note svg { color: var(--green); flex: none; }
+  .signup-error { margin-top: 10px; font-size: 14px; color: var(--amber); min-height: 0; }
+  .signup-error:empty { display: none; }
+  .signup-done {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 18px 20px;
+    background: var(--green-soft);
+    border: 1px solid #BCD7C3;
+    border-radius: var(--radius);
+    color: #173F2C;
+  }
+  .signup-done strong { display: block; font-weight: 600; margin-bottom: 2px; }
+  .signup-done p { font-size: 15px; }
+  .signup-done .tick {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--green); color: #fff;
+    display: grid; place-items: center;
+  }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(244,240,230,.86);
+    backdrop-filter: saturate(1.4) blur(10px);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease;
+  }
+  .nav.scrolled { border-bottom-color: var(--line); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 19px; letter-spacing: -.01em; }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-links a:not(.btn) { text-decoration: none; font-size: 15px; color: var(--ink-2); }
+  .nav-links a:not(.btn):hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 72px 0 112px; }
+  .hero-grid { display: grid; grid-template-columns: 1.02fr 1fr; gap: 64px; align-items: center; }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(46px, 6.2vw, 86px);
+    line-height: .98;
+    letter-spacing: -.015em;
+    margin: 18px 0 24px;
+  }
+  .hero h1 em { font-style: italic; color: var(--green); }
+  .hero .lede { font-size: 19px; color: var(--ink-2); max-width: 30em; margin-bottom: 32px; }
+  .pill-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card);
+    font-size: 13.5px; color: var(--ink-2);
+  }
+  .pill-tag b { font-weight: 600; color: var(--green); background: var(--green-soft); padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+
+  /* Dashboard mock */
+  .stage {
+    position: relative;
+    padding: 28px;
+    border-radius: 22px;
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 31px, rgba(25,25,21,.06) 31px 32px),
+      var(--paper-2);
+    border: 1px solid var(--line);
+  }
+  .stage::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 52px; width: 1px;
+    background: rgba(169,73,12,.22);
+  }
+  .dash {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .dash-head { padding: 22px 24px 18px; border-bottom: 1px solid var(--line-soft); }
+  .dash-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .dash-label { font-size: 13.5px; color: var(--muted); }
+  .dash-total { font-family: var(--serif); font-size: 54px; line-height: 1; letter-spacing: -.01em; margin-top: 6px; }
+  .dash-total small { font-size: .5em; color: var(--muted); vertical-align: .6em; margin-right: 2px; }
+  .dash-sub { font-size: 13.5px; color: var(--muted); margin-top: 6px; }
+  .split { display: flex; gap: 3px; height: 8px; margin: 18px 0 12px; border-radius: 99px; overflow: hidden; }
+  .split span { display: block; height: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .legend .mono { color: var(--ink); }
+
+  .rows { list-style: none; margin: 0; padding: 6px 0; }
+  .row {
+    display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 12px; align-items: center;
+    padding: 11px 24px;
+  }
+  .row + .row { border-top: 1px dashed var(--line-soft); }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 12.5px; font-weight: 600; color: var(--ink);
+  }
+  .row-main { min-width: 0; }
+  .row-name { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-meta { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-right { text-align: right; }
+  .row-amt { font-family: var(--mono); font-size: 14.5px; font-weight: 500; }
+  .status {
+    display: inline-block; margin-top: 3px;
+    font-size: 11.5px; font-weight: 500;
+    padding: 2px 8px; border-radius: 99px;
+    white-space: nowrap;
+  }
+  .s-late { background: var(--amber-soft); color: var(--amber); }
+  .s-due { background: #ECE8DD; color: var(--ink-2); }
+  .s-paid { background: var(--green-soft); color: var(--green); }
+
+  .toast {
+    position: absolute; left: -28px; bottom: -34px;
+    display: flex; gap: 12px; align-items: flex-start;
+    max-width: 330px;
+    padding: 14px 16px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 18px 40px -14px rgba(25,25,21,.5);
+    font-size: 13.5px; line-height: 1.4;
+    animation: toast-in .6s cubic-bezier(.2,.8,.2,1) .9s both;
+  }
+  .toast-icon {
+    flex: none; width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(244,240,230,.12);
+    display: grid; place-items: center; color: #9ED6B4;
+  }
+  .toast b { font-weight: 600; }
+  .toast q { color: #CFC9BA; font-style: italic; }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(12px) scale(.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---------- Sections ---------- */
+  section { scroll-margin-top: 72px; }
+  .section { padding: 112px 0; }
+  .section-head { max-width: 680px; margin-bottom: 56px; }
+  .section-head h2, .h2 {
+    font-family: var(--serif);
+    font-size: clamp(38px, 4.6vw, 60px);
+    line-height: 1.02;
+    letter-spacing: -.01em;
+    margin-top: 14px;
+  }
+  .section-head h2 em, .h2 em { font-style: italic; }
+  .section-head p { margin-top: 18px; font-size: 18px; color: var(--ink-2); }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .step {
+    display: flex; flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .step-copy { padding: 26px 26px 28px; }
+  .step-num { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .step h3 { font-family: var(--serif); font-size: 32px; line-height: 1.05; margin: 8px 0 10px; }
+  .step p { color: var(--ink-2); font-size: 16px; }
+  .step-vis {
+    margin-top: auto;
+    padding: 22px;
+    min-height: 230px;
+    background: var(--paper-2);
+    border-top: 1px solid var(--line);
+    display: flex; align-items: flex-end;
+  }
+
+  .mini {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 13px;
+    box-shadow: 0 8px 20px -14px rgba(25,25,21,.35);
+  }
+  .mini-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .mini-title { font-weight: 600; font-size: 13px; }
+  .line-item { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line-soft); color: var(--ink-2); }
+  .line-item .mono { color: var(--ink); }
+  .line-item.total { font-weight: 600; color: var(--ink); border-top: 1px solid var(--ink); }
+  .mini-send {
+    margin-top: 12px; width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    height: 34px; border-radius: 8px;
+    background: var(--ink); color: var(--paper); font-weight: 500;
+  }
+
+  .sched { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .sched li {
+    display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center;
+    padding: 9px 12px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    font-size: 13px;
+  }
+  .sched .when { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .sched .tone { font-size: 11.5px; padding: 2px 8px; border-radius: 99px; background: #ECE8DD; color: var(--ink-2); }
+  .sched li.done { background: var(--green-soft); border-color: #BCD7C3; color: #173F2C; }
+  .sched li.done .when { color: var(--green); }
+
+  .bars { display: flex; align-items: flex-end; gap: 8px; height: 70px; margin: 14px 0 4px; }
+  .bars span { flex: 1; border-radius: 4px 4px 2px 2px; background: #D9D2C1; }
+  .bars span.now { background: var(--green); }
+  .bars-x { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .kpi { padding: 8px 10px; border-radius: 8px; background: var(--paper); }
+  .kpi small { display: block; font-size: 11px; color: var(--muted); }
+  .kpi .mono { font-size: 14px; font-weight: 500; }
+  .kpi.late .mono { color: var(--amber); }
+
+  /* Chase spotlight */
+  .chase { background: var(--ink); color: var(--paper); }
+  .chase .eyebrow { color: #A7A293; }
+  .chase-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: start; }
+  .chase .h2 em { color: #9ED6B4; }
+  .chase-lede { margin-top: 20px; font-size: 18px; color: #CFC9BA; max-width: 30em; }
+  .chase-points { list-style: none; padding: 0; margin: 36px 0 0; display: grid; gap: 22px; }
+  .chase-points li { display: grid; grid-template-columns: 36px 1fr; gap: 14px; }
+  .chase-points .ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: 1px solid rgba(244,240,230,.18);
+    display: grid; place-items: center; color: #9ED6B4;
+  }
+  .chase-points b { display: block; font-weight: 600; margin-bottom: 2px; }
+  .chase-points p { color: #B9B3A4; font-size: 15.5px; }
+
+  .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+  .timeline::before {
+    content: ""; position: absolute; left: 11px; top: 14px; bottom: 30px; width: 1px;
+    background: linear-gradient(to bottom, rgba(244,240,230,.25), rgba(244,240,230,.25) 80%, rgba(63,167,114,.8));
+  }
+  .tl { position: relative; padding-left: 44px; padding-bottom: 22px; }
+  .tl:last-child { padding-bottom: 0; }
+  .tl-dot {
+    position: absolute; left: 4px; top: 6px;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--ink); border: 2px solid #A7A293;
+  }
+  .tl.late .tl-dot { border-color: #E59A5E; }
+  .tl.paid .tl-dot { background: var(--green-2); border-color: var(--green-2); }
+  .tl-when { font-family: var(--mono); font-size: 12.5px; color: #A7A293; display: flex; gap: 10px; flex-wrap: wrap; }
+  .tl-when .flag { color: #E59A5E; }
+  .tl.paid .tl-when .flag { color: #9ED6B4; }
+  .mail {
+    margin-top: 8px;
+    background: #24241F;
+    border: 1px solid rgba(244,240,230,.1);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+  .mail-subj { font-weight: 500; color: var(--paper); }
+  .mail-body { color: #B9B3A4; margin-top: 4px; font-size: 14.5px; }
+  .tl.paid .mail { background: rgba(63,167,114,.14); border-color: rgba(63,167,114,.35); }
+
+  /* Pricing */
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 920px; }
+  .plan {
+    position: relative;
+    display: flex; flex-direction: column;
+    padding: 34px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+  }
+  .plan.featured { border: 1.5px solid var(--ink); box-shadow: var(--shadow); }
+  .plan-badge {
+    position: absolute; top: -13px; left: 34px;
+    background: var(--green); color: #fff;
+    font-size: 12.5px; font-weight: 500;
+    padding: 4px 12px; border-radius: 99px;
+  }
+  .plan-name { font-weight: 600; font-size: 18px; }
+  .plan-for { color: var(--muted); font-size: 15px; margin-top: 2px; }
+  .price { display: flex; align-items: baseline; gap: 6px; margin: 22px 0 24px; }
+  .price-num { font-family: var(--serif); font-size: 68px; line-height: 1; letter-spacing: -.02em; }
+  .price-per { color: var(--muted); font-size: 15px; }
+  .plan ul { list-style: none; padding: 0; margin: 0 0 30px; display: grid; gap: 12px; }
+  .plan li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; font-size: 15.5px; color: var(--ink-2); }
+  .plan li svg { margin-top: 4px; color: var(--green); }
+  .plan li strong { color: var(--ink); font-weight: 600; }
+  .plan .btn { margin-top: auto; width: 100%; }
+  .plan-foot { margin-top: 12px; font-size: 13.5px; color: var(--muted); text-align: center; }
+  .pricing-note { margin-top: 28px; color: var(--muted); font-size: 15px; max-width: 920px; }
+
+  /* FAQ */
+  .faq-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; }
+  .faq { border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    list-style: none; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; gap: 20px;
+    padding: 22px 0;
+    font-size: 18px; font-weight: 500;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .plus { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: transform .2s ease, background-color .2s ease; }
+  .faq details[open] summary .plus { transform: rotate(45deg); background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .faq summary:hover .plus { border-color: var(--ink); }
+  .faq .answer { padding: 0 48px 24px 0; color: var(--ink-2); font-size: 16px; }
+
+  /* Final CTA */
+  .final { padding: 0 0 112px; }
+  .final-card {
+    position: relative; overflow: hidden;
+    padding: 72px 56px;
+    border-radius: 28px;
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 39px, rgba(30,107,71,.12) 39px 40px),
+      var(--green-soft);
+    border: 1px solid #BCD7C3;
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: end;
+  }
+  .final-card .h2 { margin-top: 0; }
+  .final-card .h2 em { color: var(--green); }
+  .final-card p.sub { margin-top: 16px; color: var(--ink-2); font-size: 18px; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 40px 0 48px; font-size: 14px; color: var(--muted); }
+  .foot { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .foot nav { display: flex; gap: 24px; flex-wrap: wrap; }
+  .foot a { text-decoration: none; }
+  .foot a:hover { color: var(--ink); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1040px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 56px; }
+    .hero-copy { max-width: 640px; }
+    .stage { max-width: 620px; }
+    .toast { left: -12px; }
+    .steps { grid-template-columns: 1fr; max-width: 620px; }
+    .chase-grid { grid-template-columns: 1fr; gap: 56px; }
+    .faq-grid { grid-template-columns: 1fr; gap: 24px; }
+    .final-card { grid-template-columns: 1fr; padding: 56px 40px; }
+  }
+  @media (max-width: 760px) {
+    .nav-links a:not(.btn) { display: none; }
+    .hero { padding: 40px 0 88px; }
+    .section { padding: 80px 0; }
+    .section-head { margin-bottom: 40px; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .final { padding-bottom: 80px; }
+  }
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    .wrap { padding: 0 20px; }
+    .hero .lede { font-size: 17.5px; }
+    .signup-row { flex-direction: column; border-radius: 16px; padding: 6px; }
+    .signup input { height: 48px; padding: 0 12px; }
+    .signup .btn { width: 100%; border-radius: 12px; }
+    .stage { padding: 14px; border-radius: 18px; }
+    .stage::before { left: 30px; }
+    .dash-head { padding: 18px 16px 16px; }
+    .dash-total { font-size: 44px; }
+    .row { padding: 10px 16px; gap: 10px; grid-template-columns: 30px minmax(0,1fr) auto; }
+    .avatar { width: 30px; height: 30px; font-size: 11.5px; }
+    .toast { left: 10px; right: 10px; bottom: -48px; max-width: none; }
+    .hero { padding-bottom: 96px; }
+    .step-copy { padding: 22px 22px 24px; }
+    .step-vis { padding: 16px; min-height: 0; }
+    .plan { padding: 28px 22px; }
+    .plan-badge { left: 22px; }
+    .final-card { padding: 44px 22px; border-radius: 22px; }
+    .faq summary { font-size: 17px; }
+    .faq .answer { padding-right: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 20 20"><path d="M10 3a5 5 0 0 0-5 5v3l-1.5 2.5h13L15 11V8a5 5 0 0 0-5-5zM8 16a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 8.5h14M7 3v3M13 3v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 20 20"><path d="M4 16l1-4 8.5-8.5a2 2 0 0 1 3 3L8 15l-4 1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 10.5l2.3 2.3 4.7-5.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.25 7.5v5M11.75 7.5v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="#top" aria-label="Ledgerly home">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#191915"/>
+        <path d="M9 11h14M9 16h14M9 21h8" stroke="#F4F0E6" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="22.5" cy="21" r="2.6" fill="#3FA772"/>
+      </svg>
+      Ledgerly
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#chase">Late payments</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary btn-sm" href="#start">Start free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="pill-tag"><b>Free</b> for up to 3 clients. No card needed.</span>
+        <h1>Send the invoice.<br>We’ll <em>chase</em> the payment.</h1>
+        <p class="lede">Ledgerly sends your invoices, follows up on late payments automatically, and shows exactly what you’re owed on one screen. No more awkward “just checking in” emails.</p>
+
+        <form class="signup" id="start" data-signup novalidate>
+          <div class="signup-row">
+            <label class="sr-only" for="email-hero">Email address</label>
+            <input id="email-hero" type="email" name="email" placeholder="you@yourstudio.com" autocomplete="email" required>
+            <button class="btn btn-primary" type="submit">Start free <svg class="arrow" width="16" height="16" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+          <p class="signup-error" role="alert"></p>
+          <div class="signup-note">
+            <span><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Free plan, no time limit</span>
+            <span><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>No credit card</span>
+          </div>
+        </form>
+      </div>
+
+      <div class="stage" role="img" aria-label="Ledgerly dashboard: $7,840 owed across 6 open invoices, $1,950 of it overdue. An automatic reminder was just sent to Northwind Studio.">
+        <div class="dash" aria-hidden="true">
+          <div class="dash-head">
+            <div class="dash-top">
+              <span class="dash-label">Owed to you</span>
+              <span class="dash-label mono">Fri, Mar 20</span>
+            </div>
+            <div class="dash-total mono"><small>$</small>7,840</div>
+            <div class="dash-sub">across 6 open invoices</div>
+            <div class="split">
+              <span style="flex:1950;background:#C9672A"></span>
+              <span style="flex:2400;background:#191915"></span>
+              <span style="flex:3490;background:#CFC7B4"></span>
+            </div>
+            <div class="legend">
+              <span><i style="background:#C9672A"></i>Overdue <b class="mono">$1,950</b></span>
+              <span><i style="background:#191915"></i>Due soon <b class="mono">$2,400</b></span>
+              <span><i style="background:#CFC7B4"></i>Later <b class="mono">$3,490</b></span>
+            </div>
+          </div>
+          <ul class="rows">
+            <li class="row">
+              <span class="avatar" style="background:#F2D9C4">NS</span>
+              <div class="row-main"><div class="row-name">Northwind Studio</div><div class="row-meta">INV-0142 · Reminder sent today</div></div>
+              <div class="row-right"><div class="row-amt">$1,200</div><span class="status s-late">3 days late</span></div>
+            </li>
+            <li class="row">
+              <span class="avatar" style="background:#E6DDF0">HC</span>
+              <div class="row-main"><div class="row-name">Harlow &amp; Co.</div><div class="row-meta">INV-0139 · Next reminder Sat</div></div>
+              <div class="row-right"><div class="row-amt">$750</div><span class="status s-late">2 days late</span></div>
+            </li>
+            <li class="row">
+              <span class="avatar" style="background:#D6E6EE">FP</span>
+              <div class="row-main"><div class="row-name">Fieldnote Press</div><div class="row-meta">INV-0145 · Viewed yesterday</div></div>
+              <div class="row-right"><div class="row-amt">$2,400</div><span class="status s-due">Due Mar 27</span></div>
+            </li>
+            <li class="row">
+              <span class="avatar" style="background:#DDEBDF">MO</span>
+              <div class="row-main"><div class="row-name">Mira Okafor</div><div class="row-meta">INV-0141 · Paid online</div></div>
+              <div class="row-right"><div class="row-amt">$980</div><span class="status s-paid">Paid</span></div>
+            </li>
+          </ul>
+        </div>
+        <div class="toast" aria-hidden="true">
+          <span class="toast-icon"><svg width="16" height="16"><use href="#i-bell"/></svg></span>
+          <div><b>Reminder sent to Northwind Studio</b><br><q>Just a friendly nudge on invoice 0142…</q></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" id="how" style="padding-top:48px">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>Everything that happens <em>after</em> the work is done.</h2>
+        <p>Three jobs every freelancer has to do and nobody enjoys. Ledgerly takes care of all three.</p>
+      </div>
+
+      <div class="steps">
+        <article class="step reveal">
+          <div class="step-copy">
+            <span class="step-num">01 — Send</span>
+            <h3>Invoices that look like you mean business.</h3>
+            <p>Pick a client, add line items, hit send. Your client gets a clean invoice with a link to pay online.</p>
+          </div>
+          <div class="step-vis" aria-hidden="true">
+            <div class="mini">
+              <div class="mini-top"><span class="mini-title">Invoice 0145</span><span class="mono" style="color:var(--muted)">Fieldnote Press</span></div>
+              <div class="line-item"><span>Brand refresh, 3 rounds</span><span class="mono">$2,000</span></div>
+              <div class="line-item"><span>Type licensing</span><span class="mono">$400</span></div>
+              <div class="line-item total"><span>Total due Mar 27</span><span class="mono">$2,400</span></div>
+              <div class="mini-send">Send invoice <svg width="14" height="14"><use href="#i-arrow"/></svg></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step reveal">
+          <div class="step-copy">
+            <span class="step-num">02 — Chase</span>
+            <h3>Late payments, followed up for you.</h3>
+            <p>When an invoice goes overdue, Ledgerly sends polite reminders on a schedule you set, and stops as soon as it’s paid.</p>
+          </div>
+          <div class="step-vis" aria-hidden="true">
+            <ul class="sched">
+              <li><span class="when">Due</span><span>Heads-up email</span><span class="tone">Friendly</span></li>
+              <li><span class="when">+3 days</span><span>First reminder</span><span class="tone">Friendly</span></li>
+              <li><span class="when">+10 days</span><span>Second reminder</span><span class="tone">Firm</span></li>
+              <li class="done"><span class="when">Paid</span><span>Reminders stop</span><svg width="16" height="16"><use href="#i-check"/></svg></li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="step reveal">
+          <div class="step-copy">
+            <span class="step-num">03 — See</span>
+            <h3>What you’re owed, at a glance.</h3>
+            <p>One number for everything outstanding, split into overdue, due soon and later. No spreadsheet required.</p>
+          </div>
+          <div class="step-vis" aria-hidden="true">
+            <div class="mini">
+              <div class="mini-top"><span class="mini-title">Paid per month</span><span class="mono" style="color:var(--muted)">2026</span></div>
+              <div class="bars">
+                <span style="height:46%"></span><span style="height:62%"></span><span style="height:38%"></span>
+                <span style="height:71%"></span><span style="height:55%"></span><span class="now" style="height:88%"></span>
+              </div>
+              <div class="bars-x"><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span></div>
+              <div class="kpis">
+                <div class="kpi"><small>Owed</small><span class="mono">$7,840</span></div>
+                <div class="kpi late"><small>Overdue</small><span class="mono">$1,950</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chase spotlight -->
+  <section class="section chase" id="chase">
+    <div class="wrap chase-grid">
+      <div class="reveal">
+        <span class="eyebrow">Automatic follow-ups</span>
+        <h2 class="h2">Stop writing <em>“just checking in”</em> emails.</h2>
+        <p class="chase-lede">Chasing money is the worst part of freelancing. It eats your time and makes things weird with good clients. Let Ledgerly do the nagging so you don’t have to.</p>
+        <ul class="chase-points">
+          <li><span class="ic"><svg width="18" height="18" aria-hidden="true"><use href="#i-cal"/></svg></span><div><b>Your schedule</b><p>Choose when reminders go out: on the due date, a few days late, two weeks late.</p></div></li>
+          <li><span class="ic"><svg width="18" height="18" aria-hidden="true"><use href="#i-pen"/></svg></span><div><b>Your words</b><p>Edit every reminder so it sounds like you, from friendly to firm.</p></div></li>
+          <li><span class="ic"><svg width="18" height="18" aria-hidden="true"><use href="#i-stop"/></svg></span><div><b>Stops when they pay</b><p>The moment an invoice is paid, the follow-ups end. Nobody gets nudged by mistake.</p></div></li>
+          <li><span class="ic"><svg width="18" height="18" aria-hidden="true"><use href="#i-pause"/></svg></span><div><b>Pause any client</b><p>Agreed on a payment plan? Turn reminders off for that invoice with one click.</p></div></li>
+        </ul>
+      </div>
+
+      <ol class="timeline reveal" aria-label="Example reminder sequence for one invoice">
+        <li class="tl">
+          <span class="tl-dot" aria-hidden="true"></span>
+          <div class="tl-when"><span>Mar 3</span><span>Invoice sent</span></div>
+          <div class="mail">
+            <div class="mail-subj">Invoice 0142 from Sam Rivera: $1,200</div>
+            <div class="mail-body">Hi Dana, here’s the invoice for the March site updates. Due Mar 17.</div>
+          </div>
+        </li>
+        <li class="tl">
+          <span class="tl-dot" aria-hidden="true"></span>
+          <div class="tl-when"><span>Mar 17</span><span>Due today</span></div>
+          <div class="mail">
+            <div class="mail-subj">Heads-up: invoice 0142 is due today</div>
+            <div class="mail-body">A quick reminder that this one’s due today. You can pay online here.</div>
+          </div>
+        </li>
+        <li class="tl late">
+          <span class="tl-dot" aria-hidden="true"></span>
+          <div class="tl-when"><span>Mar 20</span><span class="flag">3 days late</span></div>
+          <div class="mail">
+            <div class="mail-subj">Friendly nudge on invoice 0142</div>
+            <div class="mail-body">Just making sure this didn’t get buried. Happy to resend if that helps.</div>
+          </div>
+        </li>
+        <li class="tl late">
+          <span class="tl-dot" aria-hidden="true"></span>
+          <div class="tl-when"><span>Mar 27</span><span class="flag">10 days late</span></div>
+          <div class="mail">
+            <div class="mail-subj">Invoice 0142 is now 10 days overdue</div>
+            <div class="mail-body">Could you let me know when I can expect payment?</div>
+          </div>
+        </li>
+        <li class="tl paid">
+          <span class="tl-dot" aria-hidden="true"></span>
+          <div class="tl-when"><span>Mar 28</span><span class="flag">Paid · $1,200</span></div>
+          <div class="mail">
+            <div class="mail-subj">Northwind Studio paid invoice 0142</div>
+            <div class="mail-body">Reminders stopped automatically. You didn’t write a single follow-up.</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Pricing</span>
+        <h2>Start free. Pay when you <em>grow</em>.</h2>
+        <p>The free plan covers up to 3 clients, with no time limit. Upgrade only when you take on a fourth.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <article class="plan featured reveal">
+          <span class="plan-badge">Start here</span>
+          <div class="plan-name">Free</div>
+          <div class="plan-for">For freelancers with a few regular clients</div>
+          <div class="price"><span class="price-num">$0</span><span class="price-per">forever</span></div>
+          <ul>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Up to 3 clients</strong></span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span>Send invoices with online payment links</span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span>Automatic late-payment reminders</span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span>“What you’re owed” dashboard</span></li>
+          </ul>
+          <a class="btn btn-primary" href="#final" data-focus-email>Start free <svg class="arrow" width="16" height="16" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <p class="plan-foot">No credit card required</p>
+        </article>
+
+        <article class="plan reveal">
+          <div class="plan-name">Pro</div>
+          <div class="plan-for">For freelancers with a full client list</div>
+          <div class="price"><span class="price-num">$12</span><span class="price-per">per month</span></div>
+          <ul>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Unlimited clients</strong></span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span>Everything in Free</span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span>Upgrade from inside your account when you need it</span></li>
+            <li><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg><span>Cancel anytime</span></li>
+          </ul>
+          <a class="btn btn-ghost" href="#final" data-focus-email>Start free, upgrade later</a>
+          <p class="plan-foot">Every account starts on Free</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq" style="padding-top:0">
+    <div class="wrap faq-grid">
+      <div class="section-head reveal" style="margin-bottom:0">
+        <span class="eyebrow">Questions</span>
+        <h2>Good to <em>know</em>.</h2>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>Is the free plan actually free?<span class="plus" aria-hidden="true"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary>
+          <p class="answer">Yes. Up to 3 clients, no time limit and no credit card. You only pay if you upgrade to Pro.</p>
+        </details>
+        <details>
+          <summary>What happens when I add a fourth client?<span class="plus" aria-hidden="true"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary>
+          <p class="answer">Ledgerly will ask you to upgrade to Pro at $12 a month. Your existing clients, invoices and reminders stay exactly as they are.</p>
+        </details>
+        <details>
+          <summary>Will automatic reminders annoy my clients?<span class="plus" aria-hidden="true"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary>
+          <p class="answer">You decide when reminders go out and what they say. They stop the moment an invoice is paid, and you can pause them for any invoice. Most clients simply forgot, and a polite nudge is all it takes.</p>
+        </details>
+        <details>
+          <summary>Do my clients need a Ledgerly account?<span class="plus" aria-hidden="true"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary>
+          <p class="answer">No. They get an email with a link to view the invoice and pay. Nothing to sign up for.</p>
+        </details>
+        <details>
+          <summary>Can I cancel Pro?<span class="plus" aria-hidden="true"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary>
+          <p class="answer">Anytime, from your account settings. No contracts and no cancellation fees.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final" id="final">
+    <div class="wrap">
+      <div class="final-card reveal">
+        <div>
+          <h2 class="h2">Get paid for the work <em>you already did</em>.</h2>
+          <p class="sub">Free for up to 3 clients. Send your first invoice today.</p>
+        </div>
+        <form class="signup" data-signup novalidate>
+          <div class="signup-row">
+            <label class="sr-only" for="email-final">Email address</label>
+            <input id="email-final" type="email" name="email" placeholder="you@yourstudio.com" autocomplete="email" required>
+            <button class="btn btn-primary" type="submit">Start free <svg class="arrow" width="16" height="16" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+          <p class="signup-error" role="alert"></p>
+          <div class="signup-note">
+            <span><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>No credit card</span>
+            <span><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg>Upgrade only if you need to</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#top" style="font-size:16px">
+      <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#191915"/>
+        <path d="M9 11h14M9 16h14M9 21h8" stroke="#F4F0E6" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="22.5" cy="21" r="2.6" fill="#3FA772"/>
+      </svg>
+      Ledgerly
+    </a>
+    <nav aria-label="Footer">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <span>© <span id="year">2026</span> Ledgerly</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    // Sticky nav border once the page scrolls
+    var nav = document.getElementById('nav');
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Sign-up forms (no backend: validate and show a confirmation)
+    var emailOk = function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); };
+    document.querySelectorAll('[data-signup]').forEach(function (form) {
+      var input = form.querySelector('input[type="email"]');
+      var error = form.querySelector('.signup-error');
+      input.addEventListener('input', function () {
+        error.textContent = '';
+        input.removeAttribute('aria-invalid');
+      });
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = input.value.trim();
+        if (!emailOk(email)) {
+          error.textContent = 'Please enter a valid email address.';
+          input.setAttribute('aria-invalid', 'true');
+          input.focus();
+          return;
+        }
+        var done = document.createElement('div');
+        done.className = 'signup-done';
+        done.setAttribute('role', 'status');
+        done.tabIndex = -1;
+        done.innerHTML = '<span class="tick"><svg width="16" height="16" aria-hidden="true"><use href="#i-check"/></svg></span>' +
+          '<div><strong>You’re in. Check your inbox.</strong><p></p></div>';
+        done.querySelector('p').textContent = 'We sent a sign-in link to ' + email + '. Your free plan is ready for your first 3 clients.';
+        form.replaceWith(done);
+        done.focus();
+      });
+    });
+
+    // Pricing buttons jump to the final form and focus the email field
+    document.querySelectorAll('[data-focus-email]').forEach(function (link) {
+      link.addEventListener('click', function () {
+        var field = document.getElementById('email-final');
+        if (field) setTimeout(function () { field.focus({ preventScroll: true }); }, 450);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerly: invoicing for freelancers that chases late payments</title>
+  <meta name="description" content="Ledgerly sends your invoices, chases late payments for you and shows what you are owed at a glance. Free for up to 3 clients.">
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <svg class="defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <filter id="press" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.4 0 0 0 -0.3" result="mask"/>
+      <feComposite in="SourceGraphic" in2="mask" operator="in" result="inked"/>
+      <feOffset in="SourceAlpha" dx="0.7" dy="0.9" result="shifted"/>
+      <feComposite in="SourceAlpha" in2="shifted" operator="out" result="wall"/>
+      <feFlood class="press-shade" result="shade"/>
+      <feComposite in="shade" in2="wall" operator="in" result="shadeWall"/>
+      <feMerge><feMergeNode in="inked"/><feMergeNode in="shadeWall"/></feMerge>
+    </filter>
+  </svg>
+
+  <header class="nav">
+    <div class="container nav__row">
+      <a class="wordmark" href="#main" aria-label="Ledgerly, home">Ledgerly</a>
+      <nav class="nav__links" aria-label="Main">
+        <a class="nav__link" href="#pricing">Pricing</a>
+        <a class="btn btn--card" href="#start">Start free</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero: the statement of what you are owed, on the desk -->
+    <section class="hero desk" aria-labelledby="hero-title">
+      <div class="container hero__grid">
+        <div class="hero__text">
+          <h1 id="hero-title">Send the invoice. Ledgerly does the chasing.</h1>
+          <p class="lead">Invoicing for freelancers that chases late payments and tallies what you’re owed.</p>
+          <div class="hero__actions">
+            <a class="btn btn--ink" href="#start">Start free</a>
+            <p class="terms">Free for up to 3 clients. Pro is $12 a month.</p>
+          </div>
+        </div>
+
+        <figure class="hero__desk" data-play aria-label="A sample Ledgerly statement: $3,600.00 owed across three clients, one invoice late with a second reminder sent">
+          <div class="sheet stock statement">
+            <div class="statement__head">
+              <p class="statement__label">Owed to you</p>
+              <p class="statement__date">As of 5 Nov</p>
+            </div>
+            <p class="statement__total">$3,600.00</p>
+            <table class="statement__rows">
+              <caption class="visually-hidden">Sample balances by client</caption>
+              <tbody>
+                <tr class="play-row" style="--i: 0">
+                  <th scope="row">Example Kitchen</th>
+                  <td class="status status--late">9 days late</td>
+                  <td class="fig">$1,200.00</td>
+                </tr>
+                <tr class="play-row" style="--i: 1">
+                  <th scope="row">Example Press</th>
+                  <td class="status">Due 11 Nov</td>
+                  <td class="fig">$2,400.00</td>
+                </tr>
+                <tr class="play-row is-settled" style="--i: 2">
+                  <th scope="row">Example Clinic</th>
+                  <td class="status"><span class="pressed play-press">Paid</span></td>
+                  <td class="fig">$1,260.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card stock reminder play-card">
+            <p class="reminder__body">Invoice 0117 is now 9 days late. You can pay it here.</p>
+            <p class="reminder__by">Reminder 2, sent by Ledgerly</p>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- The chase, as paperwork -->
+    <section class="chase" id="chase" aria-labelledby="chase-title">
+      <div class="container">
+        <div class="head-split">
+          <h2 id="chase-title">One late invoice, chased for you</h2>
+          <p class="lead">You send it once. The reminders are Ledgerly’s job.</p>
+        </div>
+        <ol class="chase__steps">
+          <li class="chase__step">
+            <div class="chase__piece">
+              <div class="sheet stock mini">
+                <p class="mini__title">Invoice 0117</p>
+                <p class="mini__line">Example Kitchen</p>
+                <p class="mini__line">Due 27 Oct</p>
+                <p class="mini__fig fig">$1,200.00</p>
+              </div>
+            </div>
+            <h3>Sent</h3>
+            <p>Your client gets the invoice from Ledgerly.</p>
+          </li>
+          <li class="chase__step">
+            <div class="chase__piece">
+              <div class="card stock note">
+                <p>Invoice 0117 was due on 27 Oct. Here it is again.</p>
+              </div>
+            </div>
+            <h3>Late</h3>
+            <p>Ledgerly sends the first reminder for you.</p>
+          </li>
+          <li class="chase__step">
+            <div class="chase__piece">
+              <div class="card stock note note--tucked">
+                <p>Invoice 0117 is now 9 days late.</p>
+              </div>
+            </div>
+            <h3>Still late</h3>
+            <p>It follows up again, so you never have to.</p>
+          </li>
+          <li class="chase__step">
+            <div class="chase__piece">
+              <div class="sheet stock mini">
+                <p class="mini__title">Invoice 0117</p>
+                <p class="mini__fig fig">$1,200.00</p>
+                <p class="mini__stamp"><span class="pressed">Paid</span></p>
+              </div>
+            </div>
+            <h3>Paid</h3>
+            <p>It comes off what you’re owed.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Clients as an index of cards -->
+    <section class="clients" id="clients" aria-labelledby="clients-title">
+      <div class="container clients__grid">
+        <div class="clients__side">
+          <h2 id="clients-title">Every client on its own card</h2>
+          <p class="lead">Pick one to see what they owe and what was sent.</p>
+          <div class="index" role="tablist" aria-label="Sample clients" data-tabs>
+            <button class="index__card" type="button" role="tab" id="tab-kitchen" aria-controls="rec-kitchen" aria-selected="true">
+              <span class="index__name">Example Kitchen</span>
+              <span class="index__owed fig">$1,200.00</span>
+            </button>
+            <button class="index__card" type="button" role="tab" id="tab-press" aria-controls="rec-press" aria-selected="false" tabindex="-1">
+              <span class="index__name">Example Press</span>
+              <span class="index__owed fig">$2,400.00</span>
+            </button>
+            <button class="index__card" type="button" role="tab" id="tab-clinic" aria-controls="rec-clinic" aria-selected="false" tabindex="-1">
+              <span class="index__name">Example Clinic</span>
+              <span class="index__owed fig">$0.00</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="records">
+          <article class="sheet stock record" role="tabpanel" id="rec-kitchen" aria-labelledby="tab-kitchen" tabindex="0">
+            <div class="record__head">
+              <h3>Example Kitchen</h3>
+              <p class="record__owed">Owes <span class="fig">$1,200.00</span></p>
+            </div>
+            <table class="ledger">
+              <caption class="visually-hidden">Invoices for Example Kitchen</caption>
+              <thead><tr><th scope="col">Invoice</th><th scope="col" class="due">Due</th><th scope="col">Status</th><th scope="col" class="r">Amount</th></tr></thead>
+              <tbody>
+                <tr><th scope="row" class="fig">0117</th><td class="due">27 Oct</td><td><span class="tag">Reminder 2 sent</span></td><td class="fig r">$1,200.00</td></tr>
+                <tr><th scope="row" class="fig">0109</th><td class="due">2 Oct</td><td>Paid</td><td class="fig r">$950.00</td></tr>
+                <tr><th scope="row" class="fig">0101</th><td class="due">1 Sep</td><td>Paid</td><td class="fig r">$950.00</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="sheet stock record" role="tabpanel" id="rec-press" aria-labelledby="tab-press" tabindex="0">
+            <div class="record__head">
+              <h3>Example Press</h3>
+              <p class="record__owed">Owes <span class="fig">$2,400.00</span></p>
+            </div>
+            <table class="ledger">
+              <caption class="visually-hidden">Invoices for Example Press</caption>
+              <thead><tr><th scope="col">Invoice</th><th scope="col" class="due">Due</th><th scope="col">Status</th><th scope="col" class="r">Amount</th></tr></thead>
+              <tbody>
+                <tr><th scope="row" class="fig">0118</th><td class="due">11 Nov</td><td><span class="tag">Sent</span></td><td class="fig r">$2,400.00</td></tr>
+                <tr><th scope="row" class="fig">0112</th><td class="due">20 Oct</td><td>Paid</td><td class="fig r">$1,800.00</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="sheet stock record" role="tabpanel" id="rec-clinic" aria-labelledby="tab-clinic" tabindex="0">
+            <div class="record__head">
+              <h3>Example Clinic</h3>
+              <p class="record__owed">Owes <span class="fig">$0.00</span></p>
+            </div>
+            <table class="ledger">
+              <caption class="visually-hidden">Invoices for Example Clinic</caption>
+              <thead><tr><th scope="col">Invoice</th><th scope="col" class="due">Due</th><th scope="col">Status</th><th scope="col" class="r">Amount</th></tr></thead>
+              <tbody>
+                <tr><th scope="row" class="fig">0115</th><td class="due">3 Nov</td><td>Paid</td><td class="fig r">$1,260.00</td></tr>
+                <tr><th scope="row" class="fig">0108</th><td class="due">4 Oct</td><td>Paid</td><td class="fig r">$1,260.00</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- A quiet beat -->
+    <section class="say" aria-label="Why Ledgerly">
+      <div class="container">
+        <p class="say__line">You did the work. Asking to be paid shouldn’t be a second job.</p>
+      </div>
+    </section>
+
+    <!-- The price on the board, with the sign-up card laid on it -->
+    <section class="board" id="pricing" aria-labelledby="pricing-title">
+      <div class="container board__grid">
+        <div class="board__price">
+          <h2 id="pricing-title">Free while you have three clients</h2>
+          <p class="board__figure"><span class="board__zero">$0</span><span class="board__unit">a month</span></p>
+          <dl class="plans">
+            <div class="plans__row">
+              <dt>Free</dt>
+              <dd class="plans__price">$0</dd>
+              <dd>Up to 3 clients</dd>
+            </div>
+            <div class="plans__row">
+              <dt>Pro</dt>
+              <dd class="plans__price">$12 a month</dd>
+              <dd>Your fourth client and beyond</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="board__card" id="start">
+          <form class="sheet stock signup" data-endpoint="" novalidate>
+            <h3>Create your free account</h3>
+            <label class="signup__label" for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required>
+            <button class="btn btn--ink signup__btn" type="submit">Start free</button>
+            <p class="signup__help" id="email-help" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="container">
+      <p class="foot__mast">Ledgerly</p>
+      <div class="foot__row">
+        <nav class="foot__links" aria-label="Footer">
+          <a href="#chase">How it chases</a>
+          <a href="#clients">Clients</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#start">Start free</a>
+        </nav>
+        <p class="foot__legal">© 2026 Ledgerly</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

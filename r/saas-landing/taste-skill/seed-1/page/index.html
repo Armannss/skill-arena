@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en" data-type="software" data-radius="soft" data-buttons="solid" data-motion="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ledgerly · Freelancer invoicing that chases late payments</title>
+<meta name="description" content="Ledgerly sends your invoices, emails reminders when a payment runs late and shows what every client owes you. Free for up to 3 clients.">
+<meta name="page-type" content="software">
+<meta name="site-kind" content="software">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231C6B47'/%3E%3Cpath d='M11 8v16h11' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@500;600&family=Funnel+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body id="top">
+<!--
+  Kind: software (invoicing app for freelancers). Main action: Sign up free.
+  Deal: palette warm paper + ledger green (accent #1C6B47), pairing Funnel Display / Funnel Sans,
+  radius soft, buttons solid, hero split (text cols 1-6, product picture cols 7-12, one float card),
+  nav nav-centre, rhythm dark-band (#overview), close close-type, footer footer-columns.
+  No shader effect, moment or scene: the product UI carries every section.
+  Screens at 1440x900: hero 1 · invoices (app-frame) 1 · reminders (split) 1 · overview (dark band) 1
+  · pricing 1 · questions (split with plan panel) 1 · closing 1.
+-->
+<header class="nav">
+  <div class="wrap">
+    <a class="skip" href="#main">Skip to content</a>
+    <a class="brand" href="#top" aria-label="Ledgerly home"><span class="mark" aria-hidden="true">L</span>Ledgerly</a>
+    <nav class="nav__links" aria-label="Main">
+      <a href="#invoices">Invoices</a>
+      <a href="#reminders">Reminders</a>
+      <a href="#overview">Overview</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#questions">Questions</a>
+    </nav>
+    <div class="nav__end">
+      <a class="btn btn--primary" href="#signup" data-focus="email-hero">Sign up free</a>
+      <button class="btn btn--secondary menu-btn" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Open menu">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="sheet" id="sheet" hidden>
+  <nav class="wrap" aria-label="Menu">
+    <a href="#invoices">Invoices</a>
+    <a href="#reminders">Reminders</a>
+    <a href="#overview">Overview</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#questions">Questions</a>
+  </nav>
+</div>
+
+<main id="main">
+
+  <!-- 1 · Hero -->
+  <section class="hero" id="signup" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="hero-text">
+        <h1 id="hero-title">Freelancer invoicing that chases late payments</h1>
+        <p class="hero__lead">Send invoices, let Ledgerly email the reminders when a payment runs late, and see what every client owes you on one screen.</p>
+        <form class="signup" action="https://app.ledgerly.example/signup" method="post">
+          <div class="field">
+            <label for="email-hero">Work email</label>
+            <input id="email-hero" name="email" type="email" autocomplete="email" required>
+          </div>
+          <button class="btn btn--primary" type="submit">Sign up free <svg class="m-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </form>
+        <p class="hero__fact">Free for up to 3 clients. Pro is $12 a month.</p>
+      </div>
+
+      <div class="hero-visual" aria-label="A draft invoice in Ledgerly with its reminder schedule" role="img">
+        <div class="doc">
+          <div class="doc__top">
+            <div>
+              <span class="label">Invoice</span>
+              <strong class="doc__no">INV-0143</strong>
+            </div>
+            <span class="pill pill--draft">Draft</span>
+          </div>
+          <dl class="doc__meta">
+            <div><dt>Bill to</dt><dd>Kettle Bakery</dd></div>
+            <div><dt>Issued</dt><dd>5 Nov 2026</dd></div>
+            <div><dt>Due</dt><dd>19 Nov 2026</dd></div>
+          </dl>
+          <table class="items">
+            <tbody>
+              <tr><td>Brand identity, phase 2</td><td>$1,500.00</td></tr>
+              <tr><td>Packaging layout, 3 sizes</td><td>$650.00</td></tr>
+              <tr><td>Label artwork, 2 rounds</td><td>$300.00</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><td>Total</td><td>$2,450.00</td></tr>
+            </tfoot>
+          </table>
+          <div class="doc__send">
+            <span class="ui-btn ui-btn--primary">Send invoice</span>
+            <span class="ui-btn">Preview</span>
+          </div>
+        </div>
+        <div class="float at-over">
+          <span class="label">Reminders if unpaid</span>
+          <ul class="float__list">
+            <li><span>1 day late</span><span>20 Nov</span></li>
+            <li><span>7 days late</span><span>26 Nov</span></li>
+            <li><span>14 days late</span><span>3 Dec</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · App frame: the product, its list beside the open invoice -->
+  <section class="section" id="invoices" style="--h: 1">
+    <div class="wrap">
+      <div class="head">
+        <h2>Every invoice and where it stands</h2>
+        <p>Drafts, sent, late and paid in one list. Open any invoice to see when it went out and which reminder goes next.</p>
+      </div>
+
+      <div class="app" data-app>
+        <div class="app__bar">
+          <span class="app__title">Invoices</span>
+          <span class="app__meta">6 invoices · 3 unpaid</span>
+        </div>
+        <ul class="app__list" role="listbox" aria-label="Invoices">
+          <li><button type="button" role="option" aria-selected="false" data-inv="0"><span class="row__main"><span class="row__no">INV-0143</span><span class="row__client">Kettle Bakery</span></span><span class="row__side"><span class="row__amt">$2,450.00</span><span class="pill pill--draft">Draft</span></span></button></li>
+          <li><button type="button" role="option" aria-selected="true" data-inv="1"><span class="row__main"><span class="row__no">INV-0142</span><span class="row__client">Alder Studio</span></span><span class="row__side"><span class="row__amt">$2,400.00</span><span class="pill pill--late">6 days late</span></span></button></li>
+          <li><button type="button" role="option" aria-selected="false" data-inv="2"><span class="row__main"><span class="row__no">INV-0141</span><span class="row__client">Kettle Bakery</span></span><span class="row__side"><span class="row__amt">$1,150.00</span><span class="pill pill--due">Due 12 Nov</span></span></button></li>
+          <li><button type="button" role="option" aria-selected="false" data-inv="3"><span class="row__main"><span class="row__no">INV-0140</span><span class="row__client">Northgate Press</span></span><span class="row__side"><span class="row__amt">$3,200.00</span><span class="pill pill--due">Due 18 Nov</span></span></button></li>
+          <li><button type="button" role="option" aria-selected="false" data-inv="4"><span class="row__main"><span class="row__no">INV-0139</span><span class="row__client">Northgate Press</span></span><span class="row__side"><span class="row__amt">$940.00</span><span class="pill pill--paid">Paid 2 Nov</span></span></button></li>
+          <li><button type="button" role="option" aria-selected="false" data-inv="5"><span class="row__main"><span class="row__no">INV-0138</span><span class="row__client">Kettle Bakery</span></span><span class="row__side"><span class="row__amt">$1,600.00</span><span class="pill pill--paid">Paid 28 Oct</span></span></button></li>
+        </ul>
+        <div class="app__detail" data-detail aria-live="polite">
+          <div class="det__head">
+            <div>
+              <span class="det__client">Alder Studio</span>
+              <span class="det__sub">INV-0142 · Sent 16 Oct 2026</span>
+            </div>
+            <span class="pill pill--late">6 days late</span>
+          </div>
+          <div class="det__amt"><span class="det__total">$2,400.00</span><span class="det__due">Due 30 Oct 2026</span></div>
+          <div class="det__cols">
+            <div>
+              <span class="label">Items</span>
+              <table class="items items--app">
+                <tbody>
+                  <tr><td>Website redesign, 8 pages</td><td>$2,000.00</td></tr>
+                  <tr><td>Copy editing, 10 hours</td><td>$400.00</td></tr>
+                </tbody>
+                <tfoot><tr><td>Total</td><td>$2,400.00</td></tr></tfoot>
+              </table>
+            </div>
+            <div>
+              <span class="label">Chasing</span>
+              <ol class="steps">
+                <li class="is-done"><span>Sent to client</span><span>16 Oct</span></li>
+                <li class="is-done"><span>Reminder 1, 1 day late</span><span>31 Oct</span></li>
+                <li class="is-next"><span>Reminder 2, 7 days late</span><span>6 Nov</span></li>
+                <li class="is-later"><span>Reminder 3, 14 days late</span><span>13 Nov</span></li>
+              </ol>
+            </div>
+          </div>
+          <div class="det__actions"><span class="ui-btn ui-btn--primary">Send reminder now</span><span class="ui-btn">Mark as paid</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · Reminders: split, text left, the reminder email right -->
+  <section class="section" id="reminders" style="--h: 1">
+    <div class="wrap">
+      <div class="head">
+        <h2>Payment reminders that send themselves</h2>
+        <p>Choose the days once. Ledgerly emails each late client on those days, so you never have to write the awkward follow-up.</p>
+      </div>
+      <div class="grid split">
+        <ol class="howto">
+          <li><span class="howto__n">1</span><div><h3>Set your reminder days</h3><p>For example 1, 7 and 14 days after the due date.</p></div></li>
+          <li><span class="howto__n">2</span><div><h3>Ledgerly emails the client</h3><p>Each reminder names the invoice, the amount and how many days it is late.</p></div></li>
+          <li><span class="howto__n">3</span><div><h3>Reminders stop when you are paid</h3><p>Mark the invoice as paid and nothing more goes out.</p></div></li>
+        </ol>
+
+        <div class="card mail" role="img" aria-label="The second reminder for invoice INV-0142, scheduled for 6 November">
+          <div class="mail__top">
+            <span class="pill pill--due">Reminder 2 of 3 · sends 6 Nov</span>
+          </div>
+          <dl class="mail__head">
+            <div><dt>To</dt><dd>Alder Studio</dd></div>
+            <div><dt>Subject</dt><dd>Invoice INV-0142 for $2,400.00 is 7 days overdue</dd></div>
+          </dl>
+          <p class="mail__body">Hello, a quick reminder that invoice INV-0142 for $2,400.00 was due on 30 October. If the payment is already on its way, thank you, and please ignore this note.</p>
+          <ul class="sched">
+            <li><span>1 day after the due date</span><span class="tog is-on"></span></li>
+            <li><span>7 days after the due date</span><span class="tog is-on"></span></li>
+            <li><span>14 days after the due date</span><span class="tog is-on"></span></li>
+            <li><span>30 days after the due date</span><span class="tog"></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · Overview: dark band, the strongest data view -->
+  <section class="section ground-inverse" id="overview" style="--h: 1">
+    <div class="wrap">
+      <div class="head">
+        <h2>What you are owed, at a glance</h2>
+        <p>One total for every unpaid invoice, split by how late it is, and a line for each client.</p>
+      </div>
+      <div class="grid bento">
+        <div class="card card--dark owed">
+          <span class="label">Owed to you</span>
+          <span class="owed__total">$6,750.00</span>
+          <span class="owed__sub">Across 3 unpaid invoices</span>
+          <div class="bar" aria-hidden="true">
+            <span class="bar__seg bar__seg--late" style="--w: 35.6%"></span>
+            <span class="bar__seg bar__seg--soon" style="--w: 17%"></span>
+            <span class="bar__seg bar__seg--later" style="--w: 47.4%"></span>
+          </div>
+          <ul class="legend">
+            <li><span class="dot dot--late"></span><span>Late</span><span>$2,400.00</span></li>
+            <li><span class="dot dot--soon"></span><span>Due within 7 days</span><span>$1,150.00</span></li>
+            <li><span class="dot dot--later"></span><span>Due later</span><span>$3,200.00</span></li>
+          </ul>
+          <div class="owed__paid"><span>Paid in November</span><span>$940.00</span></div>
+        </div>
+        <div class="card card--dark clients">
+          <span class="label">By client</span>
+          <ul class="clients__list">
+            <li>
+              <div class="clients__row"><span>Northgate Press</span><span>$3,200.00</span></div>
+              <div class="meter" aria-hidden="true"><span style="--w: 100%"></span></div>
+              <span class="clients__note">Due 18 Nov</span>
+            </li>
+            <li>
+              <div class="clients__row"><span>Alder Studio</span><span>$2,400.00</span></div>
+              <div class="meter meter--late" aria-hidden="true"><span style="--w: 75%"></span></div>
+              <span class="clients__note clients__note--late">6 days late</span>
+            </li>
+            <li>
+              <div class="clients__row"><span>Kettle Bakery</span><span>$1,150.00</span></div>
+              <div class="meter" aria-hidden="true"><span style="--w: 36%"></span></div>
+              <span class="clients__note">Due 12 Nov</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Pricing -->
+  <section class="section" id="pricing" style="--h: 1">
+    <div class="wrap">
+      <div class="head">
+        <h2>Plans and prices</h2>
+        <p>Start free with up to 3 clients. Move to Pro when you take on a fourth.</p>
+      </div>
+      <div class="grid plans">
+        <div class="card plan">
+          <h3>Free</h3>
+          <p class="plan__price"><span>$0</span></p>
+          <p class="plan__for">For up to 3 clients</p>
+          <ul class="plan__list">
+            <li>Send invoices</li>
+            <li>Automatic payment reminders</li>
+            <li>What you are owed at a glance</li>
+          </ul>
+        </div>
+        <div class="card plan plan--pro">
+          <h3>Pro</h3>
+          <p class="plan__price"><span>$12</span> a month</p>
+          <p class="plan__for">For 4 clients or more</p>
+          <ul class="plan__list">
+            <li>Everything in Free</li>
+            <li>No limit on clients</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · Questions: split, answers left, the plan panel right -->
+  <section class="section ground-surface" id="questions" style="--h: 1">
+    <div class="wrap">
+      <div class="head">
+        <h2>Questions about plans</h2>
+      </div>
+      <div class="grid split">
+        <dl class="faq">
+          <div><dt>What does the free plan include?</dt><dd>Sending invoices, automatic reminders and the overview of what you are owed, for up to 3 clients.</dd></div>
+          <div><dt>When do I need Pro?</dt><dd>When you invoice a fourth client. Pro is $12 a month.</dd></div>
+          <div><dt>When do reminders stop?</dt><dd>As soon as you mark an invoice as paid. Until then they go out on the days you set.</dd></div>
+          <div><dt>Can I change the reminder days?</dt><dd>Yes. Pick any days after the due date, for example 1, 7 and 14.</dd></div>
+        </dl>
+
+        <div class="card plan-panel" role="img" aria-label="Plan settings in Ledgerly: Free plan, 3 of 3 clients used">
+          <div class="pp__top">
+            <div>
+              <span class="label">Your plan</span>
+              <span class="pp__name">Free</span>
+            </div>
+            <span class="pill pill--paid">3 of 3 clients</span>
+          </div>
+          <div class="meter meter--light" aria-hidden="true"><span style="--w: 100%"></span></div>
+          <ul class="pp__clients">
+            <li><span class="avatar">K</span><span>Kettle Bakery</span><span class="pp__count">3 invoices</span></li>
+            <li><span class="avatar">A</span><span>Alder Studio</span><span class="pp__count">1 invoice</span></li>
+            <li><span class="avatar">N</span><span>Northgate Press</span><span class="pp__count">2 invoices</span></li>
+          </ul>
+          <div class="pp__add">
+            <span class="pp__plus" aria-hidden="true">+</span>
+            <div>
+              <span class="pp__add-title">Add a fourth client</span>
+              <span class="pp__add-sub">Moves you to Pro at $12 a month</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="closing" id="contact" style="--h: 1">
+  <div class="wrap">
+    <div class="close">
+      <h2>Send your first invoice today</h2>
+      <p class="close__line">Free for up to 3 clients. Pro is $12 a month.</p>
+      <form class="signup signup--xl" action="https://app.ledgerly.example/signup" method="post">
+        <div class="field">
+          <label for="email-close">Work email</label>
+          <input id="email-close" name="email" type="email" autocomplete="email" required>
+        </div>
+        <button class="btn btn--primary btn--xl" type="submit">Sign up free <svg class="m-arrow" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </form>
+    </div>
+
+    <div class="directory">
+      <div class="grid directory__grid">
+        <div class="directory__brand">
+          <a class="brand" href="#top" aria-label="Ledgerly home"><span class="mark" aria-hidden="true">L</span>Ledgerly</a>
+          <p>Invoicing for freelancers: send invoices, chase late payments, see what you are owed.</p>
+        </div>
+        <nav class="directory__col" aria-label="Product">
+          <span class="label">Product</span>
+          <a class="link" href="#invoices">Invoices</a>
+          <a class="link" href="#reminders">Reminders</a>
+          <a class="link" href="#overview">Overview</a>
+        </nav>
+        <nav class="directory__col" aria-label="Plans">
+          <span class="label">Plans</span>
+          <a class="link" href="#pricing">Pricing</a>
+          <a class="link" href="#questions">Questions</a>
+        </nav>
+      </div>
+      <div class="legal"><span>© 2026 Ledgerly</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

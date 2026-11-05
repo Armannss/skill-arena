@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledgerly: Invoicing that chases late payments for you</title>
+  <meta name="description" content="Ledgerly sends your invoices, chases late payments automatically and shows what you're owed at a glance. Free for up to 3 clients.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d5c45'/%3E%3Cpath d='M9 11h14M9 16h8' stroke='%23f6f3ec' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M17 21.5l2.6 2.5L25 18.5' stroke='%237fd3a8' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="logo" href="#top" aria-label="Ledgerly home">
+        <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#1d5c45"/>
+          <path d="M9 11h14M9 16h8" stroke="#f6f3ec" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M17 21.5l2.6 2.5L25 18.5" stroke="#7fd3a8" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Ledgerly</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="nav-signin" href="#signup">Sign in</a>
+        <a class="btn btn-primary btn-sm" href="#signup" data-focus-signup>Start free</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Invoicing for freelancers</p>
+          <h1>Get paid without the awkward follow&#8209;ups.</h1>
+          <p class="lede">Ledgerly sends your invoices, chases late payments for you, and shows exactly what you're owed at a glance.</p>
+
+          <form class="signup" id="signup" data-signup novalidate>
+            <label class="sr-only" for="hero-email">Email address</label>
+            <div class="signup-row">
+              <input id="hero-email" type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@studio.com" aria-describedby="hero-msg" required>
+              <button class="btn btn-primary" type="submit">Start free</button>
+            </div>
+            <p class="form-msg" id="hero-msg" role="status" aria-live="polite"></p>
+          </form>
+          <ul class="assurances">
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Free for up to 3 clients</li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>No credit card needed</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual">
+          <div class="dash" role="img" aria-label="Ledgerly dashboard showing $6,840 outstanding: $3,200 due soon, $2,140 late and $1,500 more than 30 days overdue, with a list of recent invoices.">
+            <div class="dash-head">
+              <div>
+                <p class="dash-label">Owed to you</p>
+                <p class="dash-total">$6,840<span>.00</span></p>
+              </div>
+              <span class="dash-period">Nov 2026</span>
+            </div>
+
+            <div class="bar" aria-hidden="true">
+              <span class="bar-seg seg-due" style="flex: 3200"></span>
+              <span class="bar-seg seg-late" style="flex: 2140"></span>
+              <span class="bar-seg seg-over" style="flex: 1500"></span>
+            </div>
+            <dl class="legend">
+              <div><dt><i class="dot seg-due"></i>Due soon</dt><dd>$3,200</dd></div>
+              <div><dt><i class="dot seg-late"></i>Late</dt><dd>$2,140</dd></div>
+              <div><dt><i class="dot seg-over"></i>30+ days</dt><dd>$1,500</dd></div>
+            </dl>
+
+            <ul class="rows">
+              <li>
+                <span class="row-who"><b>Northwind Studio</b><small>INV-0142</small></span>
+                <span class="row-amt">$2,400</span>
+                <span class="chip chip-neutral">Due in 5 days</span>
+              </li>
+              <li>
+                <span class="row-who"><b>Hale &amp; Co.</b><small>INV-0139</small></span>
+                <span class="row-amt">$1,640</span>
+                <span class="chip chip-late">8 days late</span>
+              </li>
+              <li>
+                <span class="row-who"><b>Moss Coffee</b><small>INV-0131</small></span>
+                <span class="row-amt">$1,500</span>
+                <span class="chip chip-over">34 days late</span>
+              </li>
+              <li>
+                <span class="row-who"><b>Pine Labs</b><small>INV-0137</small></span>
+                <span class="row-amt">$950</span>
+                <span class="chip chip-paid">Paid</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="toast" aria-hidden="true">
+            <span class="toast-icon" data-toast-icon>
+              <svg viewBox="0 0 20 20"><path d="M3 6.5l7 4.5 7-4.5M3.5 5h13a.5.5 0 01.5.5v9a.5.5 0 01-.5.5h-13a.5.5 0 01-.5-.5v-9a.5.5 0 01.5-.5z"/></svg>
+            </span>
+            <span class="toast-text">
+              <b data-toast-title>Reminder sent to Hale &amp; Co.</b>
+              <small data-toast-sub>Friendly nudge · just now</small>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">What Ledgerly does</p>
+          <h2>Less admin. Fewer awkward emails. More money in the bank.</h2>
+        </div>
+
+        <div class="features">
+          <article class="feature">
+            <div class="feature-visual" aria-hidden="true">
+              <div class="mini-invoice">
+                <div class="mi-top">
+                  <span class="mi-brand"></span>
+                  <span class="mi-no">INV-0142</span>
+                </div>
+                <div class="mi-line"><span>Brand identity, phase 2</span><span>$1,800</span></div>
+                <div class="mi-line"><span>Illustration set (6)</span><span>$600</span></div>
+                <div class="mi-total"><span>Total</span><span>$2,400</span></div>
+                <span class="mi-pay">Pay $2,400</span>
+              </div>
+            </div>
+            <h3>Send invoices in a minute</h3>
+            <p>Pick a client, add your line items and hit send. Every invoice includes a payment link, so clients can pay by card or bank transfer straight away.</p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-visual" aria-hidden="true">
+              <ol class="timeline">
+                <li class="done"><span class="tl-day">Due</span><span>Invoice due</span></li>
+                <li class="done"><span class="tl-day">+3 days</span><span>Friendly nudge</span></li>
+                <li class="next"><span class="tl-day">+7 days</span><span>Firmer reminder</span></li>
+                <li><span class="tl-day">+14 days</span><span>Final notice</span></li>
+              </ol>
+            </div>
+            <h3>Late payments, chased for you</h3>
+            <p>When an invoice slips past its due date, Ledgerly follows up on a schedule you set, in a tone you approve. Reminders stop the moment the client pays.</p>
+          </article>
+
+          <article class="feature">
+            <div class="feature-visual" aria-hidden="true">
+              <div class="aging">
+                <p class="aging-total"><small>Owed to you</small>$6,840</p>
+                <div class="aging-row"><span>Due soon</span><span class="aging-bar"><i class="seg-due" style="width: 100%"></i></span><span>$3,200</span></div>
+                <div class="aging-row"><span>Late</span><span class="aging-bar"><i class="seg-late" style="width: 67%"></i></span><span>$2,140</span></div>
+                <div class="aging-row"><span>30+ days</span><span class="aging-bar"><i class="seg-over" style="width: 47%"></i></span><span>$1,500</span></div>
+              </div>
+            </div>
+            <h3>See what you're owed at a glance</h3>
+            <p>One number tells you what's outstanding, split by what's due soon, what's late and what needs your attention. No spreadsheet required.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section section-alt" id="how">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">How it works</p>
+          <h2>Set it up once. Then get back to the work you're paid for.</h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <h3>Add your clients</h3>
+            <p>Name, email and payment terms. Up to 3 clients on the free plan.</p>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <h3>Send your first invoice</h3>
+            <p>Use your own line items and rates. Clients get a clean invoice with a pay button.</p>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <h3>Let Ledgerly follow up</h3>
+            <p>Reminders go out on schedule until the invoice is paid, and your dashboard updates as money arrives.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section-head center">
+          <p class="eyebrow">Pricing</p>
+          <h2>Start free. Upgrade when your client list grows.</h2>
+        </div>
+
+        <div class="plans">
+          <article class="plan plan-featured">
+            <div class="plan-head">
+              <h3>Free</h3>
+              <span class="plan-badge">Most freelancers start here</span>
+            </div>
+            <p class="price"><span class="price-num">$0</span><span class="price-per">forever</span></p>
+            <p class="plan-desc">Everything you need to invoice and get paid, for up to 3 clients.</p>
+            <a class="btn btn-primary btn-block" href="#signup" data-focus-signup>Start free</a>
+            <ul class="plan-list">
+              <li>Up to 3 clients</li>
+              <li>Unlimited invoices</li>
+              <li>Automatic payment reminders</li>
+              <li>Owed-at-a-glance dashboard</li>
+              <li>Card and bank transfer payments</li>
+            </ul>
+          </article>
+
+          <article class="plan">
+            <div class="plan-head">
+              <h3>Pro</h3>
+            </div>
+            <p class="price"><span class="price-num">$12</span><span class="price-per">per month</span></p>
+            <p class="plan-desc">For freelancers with a busy roster who want invoices that look like their own.</p>
+            <a class="btn btn-secondary btn-block" href="#signup" data-focus-signup>Start free, upgrade later</a>
+            <ul class="plan-list">
+              <li><b>Everything in Free</b></li>
+              <li>Unlimited clients</li>
+              <li>Your logo and brand colors</li>
+              <li>Recurring invoices</li>
+              <li>Automatic late fees</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section-alt" id="faq">
+      <div class="container faq-grid">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions, answered</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>Is the free plan really free?</summary>
+            <p>Yes. No credit card, no trial clock. You can invoice up to 3 clients for as long as you like.</p>
+          </details>
+          <details>
+            <summary>What counts as a client?</summary>
+            <p>A client is any person or business you send invoices to. You can send as many invoices as you need to each one.</p>
+          </details>
+          <details>
+            <summary>Will the reminders sound pushy?</summary>
+            <p>Only if you want them to. You choose when each reminder goes out and can edit every message before turning it on. The default wording is polite and to the point.</p>
+          </details>
+          <details>
+            <summary>What happens when I add a fourth client?</summary>
+            <p>Ledgerly will ask you to move to Pro for $12 a month. Invoices and reminders for your existing clients keep working either way.</p>
+          </details>
+          <details>
+            <summary>Can I cancel Pro at any time?</summary>
+            <p>Yes. Cancel from your settings and you'll drop back to the free plan at the end of your billing month.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="cta">
+      <div class="container cta-inner">
+        <h2>Your next invoice could chase itself.</h2>
+        <p>Create your free account in under a minute. Free for up to 3 clients, no credit card needed.</p>
+        <form class="signup signup-dark" data-signup novalidate>
+          <label class="sr-only" for="cta-email">Email address</label>
+          <div class="signup-row">
+            <input id="cta-email" type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@studio.com" aria-describedby="cta-msg" required>
+            <button class="btn btn-light" type="submit">Start free</button>
+          </div>
+          <p class="form-msg" id="cta-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a class="logo logo-small" href="#top" aria-label="Ledgerly home">
+        <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#1d5c45"/>
+          <path d="M9 11h14M9 16h8" stroke="#f6f3ec" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M17 21.5l2.6 2.5L25 18.5" stroke="#7fd3a8" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Ledgerly</span>
+      </a>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <p class="copyright">© 2026 Ledgerly</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
