@@ -2,15 +2,19 @@
 // from disk and deploys to GitHub Pages as is.
 //
 //   node scripts/gallery.mjs [--run name]
-import { readdir, rm, mkdir, cp, writeFile, stat } from 'node:fs/promises';
+import { readdir, rm, mkdir, cp, writeFile, readFile, stat } from 'node:fs/promises';
+import os from 'node:os';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { parseArgs, resolveRunId, readJson, RUNS_DIR, SITE_DIR } from './lib.mjs';
+import { parseArgs, resolveRunId, readJson, RUNS_DIR, SITE_DIR, ROOT } from './lib.mjs';
 
 const args = parseArgs();
 const runId = await resolveRunId(args.run);
 const runDir = path.join(RUNS_DIR, runId);
 const run = await readJson(path.join(runDir, 'run.json'));
+const pkg = await readJson(path.join(ROOT, 'package.json'));
+// Paths in transcripts would show the home folder of whoever ran the arena.
+const scrub = (text) => text.split(os.homedir()).join('~');
 
 await rm(SITE_DIR, { recursive: true, force: true });
 await mkdir(SITE_DIR, { recursive: true });
@@ -29,7 +33,9 @@ for (const p of run.prompts) {
       await mkdir(out, { recursive: true });
       if (existsSync(path.join(dir, 'work'))) await cp(path.join(dir, 'work'), path.join(out, 'page'), { recursive: true });
       if (existsSync(path.join(dir, 'shots'))) await cp(path.join(dir, 'shots'), path.join(out, 'shots'), { recursive: true });
-      if (existsSync(path.join(dir, 'transcript.jsonl'))) await cp(path.join(dir, 'transcript.jsonl'), path.join(out, 'transcript.jsonl'));
+      if (existsSync(path.join(dir, 'transcript.jsonl'))) {
+        await writeFile(path.join(out, 'transcript.jsonl'), scrub(await readFile(path.join(dir, 'transcript.jsonl'), 'utf8')));
+      }
       entries.push({
         prompt: p.id,
         contender: c.id,
@@ -59,6 +65,7 @@ function page(data) {
 <title>Skill Arena</title>
 <meta name="description" content="Same prompt, same agent, different design skill. A blind, reproducible comparison of the design skills coding agents use.">
 <meta name="author" content="Arman Naseri Far">
+${social(data)}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -140,6 +147,23 @@ function page(data) {
 <script>${JS}</script>
 </body>
 </html>`;
+}
+
+// Link previews use the blind poster, so a shared link never gives away the answer.
+function social({ run }) {
+  const base = (pkg.homepage || '').replace(/\/?$/, '/');
+  const title = 'Skill Arena: same prompt, same agent, different design skill';
+  const desc = 'A blind, reproducible comparison of the design skills coding agents use.';
+  const img = base && run.prompts[0] ? `${base}share/${run.prompts[0].id}-blind-wide.png` : '';
+  return [
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:title" content="${title}">`,
+    `<meta property="og:description" content="${desc}">`,
+    base ? `<meta property="og:url" content="${base}">` : '',
+    img ? `<meta property="og:image" content="${img}">` : '',
+    `<meta name="twitter:card" content="summary_large_image">`,
+    img ? `<meta name="twitter:image" content="${img}">` : '',
+  ].filter(Boolean).join('\n');
 }
 
 function icon(name) {
@@ -493,4 +517,5 @@ const JS = `
 const data = { run, entries };
 await writeFile(path.join(SITE_DIR, 'index.html'), page(data));
 await writeFile(path.join(SITE_DIR, '.nojekyll'), '');
+await writeFile(path.join(SITE_DIR, 'run.json'), JSON.stringify({ id: run.id, startedAt: run.startedAt }, null, 2));
 console.log(`Gallery for run ${runId}: ${entries.length} results -> ${path.relative(process.cwd(), path.join(SITE_DIR, 'index.html'))}`);

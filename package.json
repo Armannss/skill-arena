@@ -35,7 +35,10 @@
     "run": "node scripts/run.mjs",
     "shoot": "node scripts/shoot.mjs",
     "gallery": "node scripts/gallery.mjs",
-    "arena": "node scripts/fetch.mjs && node scripts/run.mjs && node scripts/shoot.mjs && node scripts/gallery.mjs"
+    "arena": "node scripts/fetch.mjs && node scripts/run.mjs && node scripts/shoot.mjs && node scripts/gallery.mjs && node scripts/poster.mjs",
+    "poster": "node scripts/poster.mjs",
+    "publish": "node scripts/publish.mjs",
+    "validate": "node scripts/validate.mjs"
   },
   "devDependencies": {
     "playwright-core": "1.49.1"

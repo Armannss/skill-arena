@@ -52,7 +52,13 @@ npm run gallery
 open site/index.html
 ```
 
-A full round is `npm run arena`. It runs fetch, run, shoot and gallery in order.
+A full round is `npm run arena`. It runs fetch, run, shoot, gallery and poster in order.
+
+| Command | What it does |
+|---|---|
+| `npm run poster -- --round "Round 1"` | Share images for one brief, blind and revealed, in `site/share/` |
+| `npm run publish` | Pushes `site/` to the `gh-pages` branch for GitHub Pages |
+| `npm run validate` | Checks contender files and briefs (add `-- --fetch` to clone them too) |
 
 Useful flags for `npm run run --`:
 
@@ -79,7 +85,7 @@ Set the mode in `arena.config.json` or per run with `--mode full`. Some skills d
 
 ## Add a skill
 
-Open a pull request that adds one file to `contenders/`:
+Open a pull request that adds one file to `contenders/`. [CONTRIBUTING.md](CONTRIBUTING.md) has the details.
 
 ```json
 {

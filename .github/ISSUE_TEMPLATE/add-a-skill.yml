@@ -1,0 +1,26 @@
+name: Suggest a skill
+description: Ask for a design skill to be added to the next round
+title: "Add skill: "
+labels: ["contender"]
+body:
+  - type: markdown
+    attributes:
+      value: If you made the skill, a pull request with a contender file is faster. See CONTRIBUTING.md.
+  - type: input
+    id: repo
+    attributes:
+      label: Repository
+      placeholder: https://github.com/owner/name
+    validations:
+      required: true
+  - type: input
+    id: folders
+    attributes:
+      label: Skill folders
+      description: Folders in that repo that contain a SKILL.md
+      placeholder: skills/my-skill
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it belongs in the arena
+      description: What it claims to do for design output

@@ -1,0 +1,18 @@
+name: Problem with a result or the method
+description: Something looks unfair, leaked, or wrong
+labels: ["method"]
+body:
+  - type: input
+    id: run
+    attributes:
+      label: Run and contender
+      placeholder: "pilot-1, saas-landing, impeccable, seed 1"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What looks wrong
+      description: Link the transcript from the gallery if you can
+    validations:
+      required: true
