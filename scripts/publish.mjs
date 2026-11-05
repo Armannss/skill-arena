@@ -42,16 +42,23 @@ await cp(SITE_DIR, tree, { recursive: true });
 await writeFile(path.join(tree, '.nojekyll'), '');
 
 git(tree, 'add', '-A');
-if (!git(tree, 'status', '--porcelain')) {
-  console.log('Nothing changed since the last publish.');
-  process.exit(0);
+if (git(tree, 'status', '--porcelain')) {
+  const run = await readJson(path.join(SITE_DIR, 'run.json')).catch(() => null);
+  git(tree, 'commit', '-q', '-m', `Publish gallery${run?.id ? ` for run ${run.id}` : ''}`);
+  console.log(`Committed to ${BRANCH}: ${git(tree, 'log', '-1', '--format=%h %s')}`);
+} else {
+  console.log(`Site unchanged since the last commit on ${BRANCH}.`);
 }
-const run = await readJson(path.join(SITE_DIR, 'run.json')).catch(() => null);
-git(tree, 'commit', '-q', '-m', `Publish gallery${run?.id ? ` for run ${run.id}` : ''}`);
-console.log(`Committed to ${BRANCH}: ${git(tree, 'log', '-1', '--format=%h %s')}`);
 
 if (args['no-push']) {
   console.log('Not pushed (--no-push).');
+  process.exit(0);
+}
+// Push even when nothing changed: an earlier --no-push run may have left
+// commits that never reached GitHub.
+const remote = git(ROOT, 'ls-remote', '--heads', 'origin', BRANCH).split('\t')[0];
+if (remote && remote === git(tree, 'rev-parse', 'HEAD')) {
+  console.log('GitHub already has this version.');
   process.exit(0);
 }
 execFileSync('git', ['push', '-u', 'origin', BRANCH], { cwd: tree, stdio: 'inherit' });
