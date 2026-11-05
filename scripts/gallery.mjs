@@ -6,12 +6,16 @@ import { readdir, rm, mkdir, cp, writeFile, readFile, stat } from 'node:fs/promi
 import os from 'node:os';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { parseArgs, resolveRunId, readJson, RUNS_DIR, SITE_DIR, ROOT } from './lib.mjs';
+import { parseArgs, resolveRunId, readJson, loadContenders, RUNS_DIR, SITE_DIR, ROOT } from './lib.mjs';
 
 const args = parseArgs();
 const runId = await resolveRunId(args.run);
 const runDir = path.join(RUNS_DIR, runId);
 const run = await readJson(path.join(runDir, 'run.json'));
+// Notes are documentation, so the latest wording wins over the snapshot
+// taken when the run started (for example a limit an author pointed out).
+const current = Object.fromEntries((await loadContenders()).map((c) => [c.id, c]));
+for (const c of run.contenders) if (current[c.id]?.notes) c.notes = current[c.id].notes;
 const pkg = await readJson(path.join(ROOT, 'package.json'));
 // Paths in transcripts would show the home folder of whoever ran the arena.
 const scrub = (text) => text.split(os.homedir()).join('~');
@@ -100,8 +104,9 @@ ${social(data)}
   <section class="grid" id="grid"></section>
   <section class="board">
     <h2>Scoreboard</h2>
-    <p class="note">Cost, time and whether the agent actually loaded the skill, across every prompt in this run. A skill that is installed but never triggered has done nothing.</p>
+    <p class="note">Cost, time and whether the agent actually loaded the skill, across every prompt in this run. A skill can only change the result if the agent loads it, so this also shows whether the brief fits what each skill is made for.</p>
     <div class="tablewrap"><table id="board"></table></div>
+    <div id="limits"></div>
   </section>
   <section class="method">
     <h2>How this was made</h2>
@@ -256,6 +261,12 @@ h1 em { color: var(--ink-2); }
 .board, .method { border-top: 1px solid var(--line); padding: 40px 0 56px; }
 .board h2, .method h2 { font: 400 32px/1.1 var(--serif); margin: 0 0 8px; }
 .note { color: var(--ink-2); max-width: 64ch; margin: 0 0 24px; }
+.limits { margin-top: 32px; }
+.limits h3 { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 12px; }
+.limits dl { display: grid; grid-template-columns: max-content 1fr; gap: 12px 24px; margin: 0; max-width: 900px; }
+.limits dt { font-weight: 600; }
+.limits dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 860px) { .limits dl { grid-template-columns: 1fr; gap: 4px; } .limits dd { margin-bottom: 12px; } }
 .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
 th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); }
@@ -412,6 +423,13 @@ const JS = `
     }).join('');
   }
 
+  function renderLimits() {
+    const rows = run.contenders.filter((c) => c.notes);
+    if (!rows.length) return;
+    $('#limits').className = 'limits';
+    $('#limits').innerHTML = '<h3>Known limits in this run</h3><dl>' + rows.map((c) => '<dt>' + esc(c.name) + '</dt><dd>' + esc(c.notes).replace(/\x60([^\x60]+)\x60/g, '<code>$1</code>') + '</dd>').join('') + '</dl>';
+  }
+
   function renderBoard() {
     const rows = run.contenders.map((c) => {
       const mine = entries.filter((e) => e.contender === c.id);
@@ -509,7 +527,7 @@ const JS = `
     }
   });
 
-  renderMeta(); renderBoard(); render();
+  renderMeta(); renderBoard(); renderLimits(); render();
 })();
 `;
 

@@ -5,5 +5,8 @@
   "repo": "https://github.com/Nutlope/hallmark",
   "commit": "407fa689f4a276f2fd389208d271d0fef08f5058",
   "license": "MIT",
-  "skills": ["skills/hallmark"]
+  "skills": [
+    "skills/hallmark"
+  ],
+  "notes": "Safe mode has no shell, so sloplint and the browser checks that Hallmark runs cannot run. Only its written guidance is in effect."
 }

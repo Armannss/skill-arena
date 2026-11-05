@@ -116,6 +116,16 @@ site/              the generated gallery (deploy this folder)
 
 ## Limits
 
+**Round 0 handicaps.** These are disclosed per contender in the gallery too.
+
+- **Impeccable** normally asks the user a few setup questions to build context. Headless runs answer none, its design hook is not installed, and its engine binary needs a shell. Its author, Paul Bakaus, confirmed it cannot be tested well this way.
+- **Taste Skill** and **Hallmark** run browser checks and linters from a shell, which safe mode does not have.
+- **Interfaces** targets polishing existing UI, not building a new page from a brief, so it did not trigger.
+
+Round 1 will give every run the same product context file, so skills that ask questions can find answers, and will run full mode in a container so hooks and scripts can work.
+
+**In general:**
+
 - Results come from one agent and one model. A skill can rank differently with another agent.
 - Some contenders ship extra pieces, like hooks or command-line tools. The arena tests the skill files only, and each contender file says what it leaves out.
 - Taste is subjective. The arena shows its evidence so you can judge for yourself.
