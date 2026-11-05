@@ -97,6 +97,12 @@ h1 em { color: var(--ink-2); }
 .board, .method { border-top: 1px solid var(--line); padding: 40px 0 56px; }
 .board h2, .method h2 { font: 400 32px/1.1 var(--serif); margin: 0 0 8px; }
 .note { color: var(--ink-2); max-width: 64ch; margin: 0 0 24px; }
+.limits { margin-top: 32px; }
+.limits h3 { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 12px; }
+.limits dl { display: grid; grid-template-columns: max-content 1fr; gap: 12px 24px; margin: 0; max-width: 900px; }
+.limits dt { font-weight: 600; }
+.limits dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 860px) { .limits dl { grid-template-columns: 1fr; gap: 4px; } .limits dd { margin-bottom: 12px; } }
 .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
 th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); }
@@ -182,8 +188,9 @@ td a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
   <section class="grid" id="grid"></section>
   <section class="board">
     <h2>Scoreboard</h2>
-    <p class="note">Cost, time and whether the agent actually loaded the skill, across every prompt in this run. A skill that is installed but never triggered has done nothing.</p>
+    <p class="note">Cost, time and whether the agent actually loaded the skill, across every prompt in this run. A skill can only change the result if the agent loads it, so this also shows whether the brief fits what each skill is made for.</p>
     <div class="tablewrap"><table id="board"></table></div>
+    <div id="limits"></div>
   </section>
   <section class="method">
     <h2>How this was made</h2>
@@ -225,7 +232,7 @@ td a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
   </div>
 </div>
 
-<script>const DATA = {"run":{"id":"pilot-1","startedAt":"2026-11-05T17:37:43.907Z","agent":{"name":"claude-code","version":"2.1.296","mode":"safe","model":"claude-opus-5-5","effort":"high","timeoutMinutes":30,"disallowedTools":["WebSearch","WebFetch"]},"auth":"login","disabledSkills":["design","doctor","plugin-authoring"],"seeds":1,"prompts":[{"id":"saas-landing","title":"SaaS landing page","genre":"marketing","brief":"Build the landing page for Ledgerly, an invoicing tool for freelancers. It sends invoices, chases late payments automatically and shows what you are owed at a glance. Pricing: Free for up to 3 clients, Pro at $12 a month. The goal of the page is sign-ups for the free plan."}],"contenders":[{"id":"baseline","name":"No skill","description":"The agent on its own. Every other contender is compared against this."},{"id":"hallmark","name":"Hallmark","author":"Nutlope","repo":"https://github.com/Nutlope/hallmark","commit":"407fa689f4a276f2fd389208d271d0fef08f5058","license":"MIT"},{"id":"impeccable","name":"Impeccable","author":"pbakaus","repo":"https://github.com/pbakaus/impeccable","commit":"c8891a9ae865d6ee311836ae5199bfce0fe115b1","license":"Apache-2.0","notes":"Skill files only. The optional design hook from `npx impeccable install` is not installed."},{"id":"interfaces","name":"Interfaces","author":"jakubkrehel","repo":"https://github.com/jakubkrehel/skills","commit":"60bf140e43c98b248e6594487384ec967e89d98a","license":"MIT","notes":"All 14 skills from the collection are installed together, as `npx skills add` does."},{"id":"taste-skill","name":"Taste Skill","author":"Leonxlnx","repo":"https://github.com/Leonxlnx/taste-skill","commit":"9b4bf937a1f69348126959c15d2f99a73e65699b","license":"MIT"}]},"entries":[{"prompt":"saas-landing","contender":"baseline","seed":1,"path":"r/saas-landing/baseline/seed-1","ok":true,"hasShots":true,"durationMs":235076,"costUsd":0.8355340000000001,"turns":14,"skillTriggered":false,"skillCalls":[],"pageErrors":0},{"prompt":"saas-landing","contender":"hallmark","seed":1,"path":"r/saas-landing/hallmark/seed-1","ok":true,"hasShots":true,"durationMs":488849,"costUsd":2.4393636000000005,"turns":32,"skillTriggered":true,"skillCalls":["hallmark:hallmark"],"pageErrors":0},{"prompt":"saas-landing","contender":"impeccable","seed":1,"path":"r/saas-landing/impeccable/seed-1","ok":true,"hasShots":true,"durationMs":521737,"costUsd":1.7741864,"turns":12,"skillTriggered":true,"skillCalls":["impeccable:impeccable"],"pageErrors":0},{"prompt":"saas-landing","contender":"interfaces","seed":1,"path":"r/saas-landing/interfaces/seed-1","ok":true,"hasShots":true,"durationMs":207564,"costUsd":0.754135,"turns":10,"skillTriggered":false,"skillCalls":[],"pageErrors":0},{"prompt":"saas-landing","contender":"taste-skill","seed":1,"path":"r/saas-landing/taste-skill/seed-1","ok":true,"hasShots":true,"durationMs":531153,"costUsd":2.2204897999999997,"turns":28,"skillTriggered":true,"skillCalls":["taste-skill:taste-skill"],"pageErrors":0}]};</script>
+<script>const DATA = {"run":{"id":"pilot-1","startedAt":"2026-11-05T17:37:43.907Z","agent":{"name":"claude-code","version":"2.1.296","mode":"safe","model":"claude-opus-5-5","effort":"high","timeoutMinutes":30,"disallowedTools":["WebSearch","WebFetch"]},"auth":"login","disabledSkills":["design","doctor","plugin-authoring"],"seeds":1,"prompts":[{"id":"saas-landing","title":"SaaS landing page","genre":"marketing","brief":"Build the landing page for Ledgerly, an invoicing tool for freelancers. It sends invoices, chases late payments automatically and shows what you are owed at a glance. Pricing: Free for up to 3 clients, Pro at $12 a month. The goal of the page is sign-ups for the free plan."}],"contenders":[{"id":"baseline","name":"No skill","description":"The agent on its own. Every other contender is compared against this."},{"id":"hallmark","name":"Hallmark","author":"Nutlope","repo":"https://github.com/Nutlope/hallmark","commit":"407fa689f4a276f2fd389208d271d0fef08f5058","license":"MIT","notes":"Safe mode has no shell, so sloplint and the browser checks that Hallmark runs cannot run. Only its written guidance is in effect."},{"id":"impeccable","name":"Impeccable","author":"pbakaus","repo":"https://github.com/pbakaus/impeccable","commit":"c8891a9ae865d6ee311836ae5199bfce0fe115b1","license":"Apache-2.0","notes":"Handicapped in this round, as its author confirmed. Impeccable normally starts by asking the user a few questions to build context, and headless runs answer none. Its design hook from `npx impeccable install` is not installed, and safe mode has no shell, so its engine binary cannot run."},{"id":"interfaces","name":"Interfaces","author":"jakubkrehel","repo":"https://github.com/jakubkrehel/skills","commit":"60bf140e43c98b248e6594487384ec967e89d98a","license":"MIT","notes":"All 14 skills are installed together, as `npx skills add` does. They target polishing and reviewing existing UI, and build-design works from a Figma file, so a brief for a new page is not the task they are made for."},{"id":"taste-skill","name":"Taste Skill","author":"Leonxlnx","repo":"https://github.com/Leonxlnx/taste-skill","commit":"9b4bf937a1f69348126959c15d2f99a73e65699b","license":"MIT","notes":"Safe mode has no shell, so the browser checker and photo scripts that Taste Skill runs cannot run. Only its written guidance is in effect."}]},"entries":[{"prompt":"saas-landing","contender":"baseline","seed":1,"path":"r/saas-landing/baseline/seed-1","ok":true,"hasShots":true,"durationMs":235076,"costUsd":0.8355340000000001,"turns":14,"skillTriggered":false,"skillCalls":[],"pageErrors":0},{"prompt":"saas-landing","contender":"hallmark","seed":1,"path":"r/saas-landing/hallmark/seed-1","ok":true,"hasShots":true,"durationMs":488849,"costUsd":2.4393636000000005,"turns":32,"skillTriggered":true,"skillCalls":["hallmark:hallmark"],"pageErrors":0},{"prompt":"saas-landing","contender":"impeccable","seed":1,"path":"r/saas-landing/impeccable/seed-1","ok":true,"hasShots":true,"durationMs":521737,"costUsd":1.7741864,"turns":12,"skillTriggered":true,"skillCalls":["impeccable:impeccable"],"pageErrors":0},{"prompt":"saas-landing","contender":"interfaces","seed":1,"path":"r/saas-landing/interfaces/seed-1","ok":true,"hasShots":true,"durationMs":207564,"costUsd":0.754135,"turns":10,"skillTriggered":false,"skillCalls":[],"pageErrors":0},{"prompt":"saas-landing","contender":"taste-skill","seed":1,"path":"r/saas-landing/taste-skill/seed-1","ok":true,"hasShots":true,"durationMs":531153,"costUsd":2.2204897999999997,"turns":28,"skillTriggered":true,"skillCalls":["taste-skill:taste-skill"],"pageErrors":0}]};</script>
 <script>
 (() => {
   const { run, entries } = DATA;
@@ -326,6 +333,13 @@ td a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
     }).join('');
   }
 
+  function renderLimits() {
+    const rows = run.contenders.filter((c) => c.notes);
+    if (!rows.length) return;
+    $('#limits').className = 'limits';
+    $('#limits').innerHTML = '<h3>Known limits in this run</h3><dl>' + rows.map((c) => '<dt>' + esc(c.name) + '</dt><dd>' + esc(c.notes).replace(/`([^`]+)`/g, '<code>$1</code>') + '</dd>').join('') + '</dl>';
+  }
+
   function renderBoard() {
     const rows = run.contenders.map((c) => {
       const mine = entries.filter((e) => e.contender === c.id);
@@ -423,7 +437,7 @@ td a { text-decoration: none; border-bottom: 1px solid var(--line-2); }
     }
   });
 
-  renderMeta(); renderBoard(); render();
+  renderMeta(); renderBoard(); renderLimits(); render();
 })();
 </script>
 </body>
